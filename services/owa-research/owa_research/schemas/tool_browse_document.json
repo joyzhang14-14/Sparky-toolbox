@@ -1,0 +1,62 @@
+{
+  "$defs": {
+    "BrowseAction": {
+      "enum": [
+        "open",
+        "page_up",
+        "page_down",
+        "goto",
+        "find",
+        "find_next"
+      ],
+      "title": "BrowseAction",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "分页文本浏览器：翻页、跳页、页内查找",
+  "properties": {
+    "artifact_id": {
+      "maxLength": 128,
+      "title": "Artifact Id",
+      "type": "string"
+    },
+    "action": {
+      "$ref": "#/$defs/BrowseAction",
+      "default": "open"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "goto 时目标屏号",
+      "title": "Page"
+    },
+    "query": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "find 时的查找词",
+      "title": "Query"
+    }
+  },
+  "required": [
+    "artifact_id"
+  ],
+  "title": "BrowseDocumentParams",
+  "type": "object"
+}

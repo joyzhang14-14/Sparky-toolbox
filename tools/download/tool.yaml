@@ -1,0 +1,5 @@
+# 工具 download 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: download
+description: "下载文件 / 模型（网址或 HuggingFace 仓库，Joy 批准后下到 /home/sparky/workspace/_download）；也能给沙箱申请安装缺的程序或 Python 包"
+network: true        # 探测大小、后台下载要联网
+is_editable: false   # Joy 定：builder 的计划不能改它

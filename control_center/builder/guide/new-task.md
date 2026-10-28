@@ -1,0 +1,7 @@
+## 新任务（new-task）
+文件：任务文件夹 tasks/<名>/，整个文件夹都能写：task.yaml；定义监听（写 listen_py）的再加 listen.py（见 listen，要和计划的 listen_py 一模一样）；workflow 任务的步骤 py 等也放这里，要 Python 依赖的写计划的 deps + 同内容的 requirements.txt（见 workflow-task）。部署后平台先试跑一次，成功才按计划的 enabled_after_deploy 上线。
+必须和计划一致：trigger、schedule、priority、runtime、model、tools（工具项一模一样）、subagents（子代理项一模一样，计划没写就不写）、memory、listen、listen_events、steps、network、hooks、resumable（计划没写的 yaml 也不写）；timeout 计划写了就照写，没写由你定。hooks 的脚本放任务文件夹里。没特别说明时，agent 任务（私信任务除外）默认把成品记进任务消息库：计划的 hooks 写 post_call [{command: record_run.py, match: [reply]}] + run_end [{command: record_run.py}]，脚本照 tasks/daily-news/record_run.py 原样复制进自己文件夹。
+task.yaml 写法需要时读 control_center/builder/examples/new-task-task.yaml。
+产出放平台文件夹外：任务的产出一律写平台外的绝对路径——数据集、中间数据、检查点、生成的文件写任务工作区 /home/sparky/workspace/<任务>/，研究报告与数据写 /home/joyzhang14/research/<项目>/，训练出的模型写 /home/joyzhang14/models/…；不写仓库里的相对路径。写不进去的目录（如 /home/joyzhang14/research/ 下新建项目目录）用 ask_user 请 Joy 开权限。
+规则：任务说明写 system_prompt（要读的文件也写进去，让模型用工具读）；当前本机时间（日期、星期、时区）平台已注入系统提示，任务不用另外读时间；不起 agent、按固定步骤跑 py 的任务见 workflow-task；沙箱、运行结束的通知、停滞判定、总时长都是平台统一的，任务 yaml 不写；${} 只能用 ${STB_OWNER_DISCORD_ID}；trigger 写 schedule / manual / listen（监听见 listen）。读外部内容的工具（usable_by: subagent）只给子代理用、任务的 tools 里不能写，任务要读外部内容时调用隔离子代理（计划任务的 subagents 写它；stb subagents list 里标了隔离的）；工具没有作用域，这个任务要的限制写进 system_prompt。
+常见错误：enabled 写成 true；tools / subagents 里多写或少写一项；把只给子代理用的工具（usable_by: subagent）写进 tools。

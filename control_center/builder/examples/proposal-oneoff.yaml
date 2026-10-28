@@ -1,0 +1,11 @@
+# 一次性任务提案（主模型调用 builder 时 prompt 写的 YAML）：长活交给后台跑一次，只能用已有工具和子代理
+oneoff:
+  name: midterm-study # 短名（平台加前缀 oneoff-）
+  purpose: 查清三门课的期中安排 # 目的（卡上给 Joy 看）
+  system_prompt: | # 给后台 agent 的完整任务说明（它看不到这次私信，要写全）
+    …
+  tools: { reply: {}, school-canvas: {} } # 已有工具名 → 工具项（一般写 {}）。平台不自动加工具：要私信 Joy 结果就列 reply，要中途问 Joy 就列 ask-user
+  subagents: { isolated-reader: {} } # 已有子代理名 → 子代理项（一般写 {}）；不用就不写
+  runtime: "" # 不写 = 同你（提案的任务）的模型；写就和 model 一起对上 models.yaml 的一个档位
+  model: ""
+  priority: 5 # 1–9，默认 5

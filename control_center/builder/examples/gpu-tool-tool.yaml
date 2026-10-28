@@ -1,0 +1,10 @@
+# GPU 工具的 tool.yaml：每次调用起一次性 stb-docker-base 容器（media.run_gpu）
+name: example
+description: "一句话说清这个工具做什么"
+network: false
+docker:
+  images: [stb-docker-base]
+  gpu: true
+  memory: 8g                # 容器内存：实测峰值 + 余量（显存不算在里面）
+  cpus: 4
+  timeout: 30m              # 预计时长，只用来显示、判卡住

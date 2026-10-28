@@ -1,0 +1,61 @@
+# 做视频子代理（generator）：本地 ComfyUI 跑 MiniMax H3，文生视频、首帧（+ 尾帧）生视频或参考图生视频（ref2va），带立体声；主模型传 prompt + 下面的 inputs，交回成品路径和一张 4 帧拼图
+name: video
+# 调用前网关卸下主模型、加载视频模型，调用后换回（切换来回约 5 分钟，不算进 timeout）；加载期间 Joy 那边显示 ⏳
+description: "用本地模型生成视频：文生视频、首帧（+ 尾帧）生视频，或参考图生视频（保持人物 / 场景一致）。"
+kind: generator
+runtime: comfyui
+model: minimax-h3
+timeout: 100m               # 单次调用：生成 + 抽帧 / 压缩（不含切换模型）；最重一档（768p、15 秒、20 步）实测生成 90 分钟
+is_editable: false          # 带以平台身份跑的 hooks（查输入图、删 ComfyUI 里的副本）：builder 的计划不能改它
+inputs:                     # 同 server.py 的函数参数（默认值、上下限一致）
+  first_frame:
+    type: string
+    default: ""
+    description: 图生视频的首帧（工作目录下图片的绝对路径）；尺寸按它的宽高比算
+  last_frame:
+    type: string
+    default: ""
+    description: 结尾画面（工作目录下图片的绝对路径），要和 first_frame 一起给
+  references:
+    type: array
+    items: {type: string}
+    maxItems: 9
+    default: []
+    description: 参考图（工作目录下图片的绝对路径）：只告诉模型人物 / 物品 / 场景长什么样，不当首尾帧；prompt 里用 <Picture 1>… 按顺序指它们；不能和 first_frame / last_frame 一起用
+  duration_s:
+    type: number
+    minimum: 1
+    maximum: 15
+    default: 5
+    description: 时长（秒，1–15）；成片是带声音的 mp4，24 fps
+  aspect_ratio:
+    type: string
+    enum: ["1:1 (Square)", "2:3 (Portrait Photo)", "3:2 (Photo)", "3:4 (Portrait Standard)", "4:3 (Standard)", "9:16 (Portrait Widescreen)", "16:9 (Widescreen)", "21:9 (Ultrawide)"]
+    default: "16:9 (Widescreen)"
+    description: 宽高比（给了 first_frame 时按首帧算）
+  megapixels:
+    type: number
+    minimum: 0.2
+    maximum: 1.0
+    default: 0.4
+    description: 像素预算（百万像素；0.4 即 864x480）
+  turbo:
+    type: boolean
+    default: false
+    description: true 用加速档，快很多
+  steps:
+    type: integer
+    minimum: 1
+    maximum: 50
+    default: 20
+    description: 采样步数；turbo 时不给就用加速档的步数
+  seed:
+    type: integer
+    minimum: -1
+    default: -1
+    description: 随机种子，-1 = 随机
+hooks:
+  pre_call:                 # 换模型之前先查输入图（在不在、是不是图片），不过就拦下，不白卸主模型
+    - command: check_inputs.py
+  post_call:                # ComfyUI 里的输入图与成品副本（~/apps/ComfyUI/input|output/stb/<运行 id>/）sparky 删不了：每次调用结束后以平台身份删（同一运行还有调用在途就等最后一个）
+    - command: comfy_cleanup.py

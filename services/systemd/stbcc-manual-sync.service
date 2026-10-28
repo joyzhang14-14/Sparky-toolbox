@@ -1,0 +1,8 @@
+# 单向：~/Obsidian/Sparky/How-to-set-a-task-on-Sparky.md → ~/sparky-toolbox/How-to-set-a-task-on-Sparky.md（仓库这份不要直接改，会被覆盖）
+[Unit]
+Description=sparky-toolbox manual sync (copy Obsidian copy into repo root)
+
+[Service]
+UMask=0022
+Type=oneshot
+ExecStart=/bin/sh -c 'src=%h/Obsidian/Sparky/How-to-set-a-task-on-Sparky.md; dst=%h/sparky-toolbox/How-to-set-a-task-on-Sparky.md; [ -s "$src" ] && ! cmp -s "$src" "$dst" && cp "$src" "$dst.tmp" && mv "$dst.tmp" "$dst"; exit 0'

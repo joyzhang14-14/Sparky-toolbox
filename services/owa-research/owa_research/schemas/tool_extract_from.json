@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "description": "对指定内容按研究目标做目标条件抽取",
+  "properties": {
+    "artifact_id": {
+      "maxLength": 128,
+      "title": "Artifact Id",
+      "type": "string"
+    },
+    "goal": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Goal",
+      "type": "string"
+    },
+    "section_id": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Id"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Page"
+    }
+  },
+  "required": [
+    "artifact_id",
+    "goal"
+  ],
+  "title": "ExtractFromParams",
+  "type": "object"
+}

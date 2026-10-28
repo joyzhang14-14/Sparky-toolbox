@@ -1,0 +1,6 @@
+# 工具 obsidian 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: obsidian
+# 库在 ~/Obsidian，只认 .md，跳过 . 开头的目录；UCI/ 以外的写入发通用审批卡（tool_kit.ask_permission），没处理就挂起，同意后同样参数再调一次才写
+description: "读写 Joy 的 Obsidian 笔记库：按关键词找、看信息、分段读、整篇写"
+is_editable: false   # 改 UCI/ 以外的笔记要 Joy 审批：builder 的计划不能改它
+network: false

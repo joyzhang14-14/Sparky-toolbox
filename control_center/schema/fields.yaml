@@ -1,0 +1,329 @@
+# 字段表：所有 yaml 字段的唯一来源——任务（tasks/<名>/task.yaml）、tools/<名>/tool.yaml、subagents/<名>/subagent.yaml、config/models.yaml、config/stbcc.yaml。
+# 代码按它校验（写了表外的字段就拒），stb schema 按它生成手册的字段表，control_center/scheme_check.py 按它查仓库里的 yaml。
+# 改这张表、加字段必须先问 Joy；改了以后同目录的 fields.lock（Joy 批准过的指纹）对不上，stbcc-runner / stbcc-builder / stbcc-docker 不启动、
+# stbcc-hub 不触发任务，并私信 Joy；`stb schema approve` 发审批卡，Joy 同意后才更新 fields.lock。
+# 写法：<种类>: {字段: {desc, …}}；带点的（如 subagents.name、web.port）是那一项映射里的键。
+# task 的类型、默认、取值由 control_center/task.py 的 Task 模型定，名字与说明以这里为准（两边的名字对不上时 import 就报错）。
+# tool / models / models._settings / stbcc：{type, default（写「必填…」= 必填）, desc}；subagent：{type, kinds（agent / generator / engine → 必填 / 可写 / 不写）, allowed, desc}。
+task:
+  name:
+    desc: 小写字母、数字、连字符，≤41 字符；等于任务文件夹名 tasks/<名>/
+  description:
+    desc: 一句话说明
+  enabled:
+    desc: 启停的唯一真源：true / false
+  trigger:
+    desc: 触发方式：schedule / listen / manual（写一种）；不写时有 schedule 当 schedule，否则 manual
+  schedule:
+    desc: 'trigger: schedule 时必填：一条 5 段 cron（分 时 日 月 周，本机时区），或几条 cron 的列表（几个时刻分钟不一样时，如 ["0 7 * * *", "30 18 * * *"]）'
+  listen:
+    desc: '监听名；任务文件夹里有 listen.py = 定义它（同名只能一个定义），没有 = 引用别的任务定义的同名监听；trigger: listen 时必填'
+  listen_events:
+    desc: 订阅的事件来源名（如 [message]）：中枢收到这个来源的事件就调 listen.py 的 on_event(event, ctx)
+  timeout:
+    desc: agent 任务：主模型时间预算（20m、2h；none = 不限：没有截止、不进收尾轮）：子代理调用、模型卸载 / 加载、暂停、等卡片都不算；到点给一轮收尾，记 partial；总时长没有别的上限。workflow 任务：各步骤在跑的时间合计（排队、加载模型、暂停不算），到点终止正在跑的步骤，记 timeout
+  priority:
+    desc: 1–10，大的先跑，同优先级按入队先后；builder 只能设 1–9
+  resumable:
+    desc: 只给 workflow 任务，默认 true：要资源的步骤能在中间被抢占 / 暂停（发 SIGTERM，等它存好进度以 75 退出最多 runner.PREEMPT_GRACE_COMMAND_S，到点强停；恢复时重跑这一步）；false = 不在步骤中间打断，跑完这一步才让出。agent 任务一律可抢占，不写它
+  runtime:
+    desc: agent 任务必填：主模型的服务栈（如 vllm-eugr）；workflow 任务不写（要模型的步骤把档位写在步骤里）
+  model:
+    desc: agent 任务必填：主模型的真实模型 id（如 local-inference-lab/Qwen3.8-Flash-Next-NVFP4）；与 runtime 一起对上 models.yaml 的一个档位（runtime + model_path）；workflow 任务不写
+  effort:
+    desc: agent 任务可写：主模型的推理档位。只在必要时写，非必要留空：不写 = 不传档位，用模型聊天模板的默认（现在的主模型默认 xhigh），和没有这个字段时一样。写了就交给 pi（--thinking），pi 在请求里带 reasoning_effort，vLLM 交给聊天模板。值写 minimal / low / medium / high / xhigh 之一，还要是这个模型的模板认的（现在的主模型认 xhigh / medium / low，别的值请求会报错）；workflow 任务不写
+  tools:
+    desc: '权限清单：- 名字 或 - 名字: {guide}（guide 追加本任务的用法规则）；只能写 usable_by: universal 的工具；${KEY} 只在这里的值里展开'
+  subagents:
+    desc: '主模型能直接调用的子代理（subagents/<名>/subagent.yaml）：- 名字 或 - 名字: {guide: …}'
+  system_prompt:
+    desc: agent 任务必填：固定说明与注意事项（定时任务的任务说明也写这里），接在平台人设后面作系统提示
+  steps:
+    desc: 'workflow 任务：按顺序跑的步骤，每步一行 [编号, 文件, 要不要资源] 或 [编号, 文件, true, {runtime, model}]。编号从 1 起连续；文件是任务文件夹里的 .py 文件名（不带路径），以 sparky 跑；要资源（true）的步骤按任务的 priority 进 runner 的队列，写了第 4 项就先切到那个模型档位，没写就停掉所有模型、等内存够了再跑；不要资源（false）的由 stbcc-hub 马上跑，不排队、不打断别的任务'
+  network:
+    desc: listen.py、workflow 的步骤与任务 hook 以 sparky 跑时要不要联网（不写 = 禁 TCP；端口列表 = 只连本机这些端口）
+  memory:
+    desc: 记忆文件清单：每项是文件或文件夹（文件夹 = 那一层所有 .md），~ 展开；每次运行读出来注入用户消息（只读，以文件名作小标题，总量上限 2 万字）
+  hooks:
+    desc: '平台执行的文件（control_center/hooks.py），command 是任务文件夹 tasks/<名>/ 里的文件：run_start、run_end（运行开始 / 结束）；pre_call、post_call（本任务的运行里每次调用工具 / 子代理前后，平台代发的也算；可带 match: [函数名或工具名]；先跑任务的、再跑工具自己的；pre_call 退出码 2 拦下、stdout {"args": {...}} 改写参数，同工具）'
+  subagents.name:
+    desc: 子代理名（subagents/<名>/subagent.yaml），也是主模型看到的调用名
+  subagents.guide:
+    desc: 本任务给这个子代理追加的规则：和它的 guide.md 一起在主模型第一次调用它时给
+tool:
+  name:
+    type: str
+    default: 必填
+    desc: 工具名 = 文件夹名 tools/<工具名>/；任务 yaml 的 tools 里写的就是它
+  description:
+    type: str
+    default: 必填
+    desc: 一句话说明（stb tools list 显示）
+  is_editable:
+    type: bool
+    default: 'true'
+    desc: builder 的计划能不能提出修改这个工具（Joy 批）；平台核心工具与带以平台身份跑的 hook、自管审批的工具写 false
+  network:
+    type: bool / list
+    default: 必填
+    desc: 要不要联网：false 用 Landlock 禁 TCP；写端口列表（如 [8188]）= 禁 TCP 但放行连这些端口（本机服务；Landlock 只认端口不认地址）；true 不限
+  docker:
+    type: map
+    default: —
+    desc: 要起的容器 {images, memory, cpus, pids, tmp, disk, gpu, timeout}：memory 默认 4g 最多 8g，cpus 默认 2 最多 8，pids 默认 512 最多 2048，tmp（/tmp 内存盘）默认 1g 最多 4g，disk（容器运行期间可写挂载目录新写的合计上限，超了停容器）默认 20g 最多 20g（调用时可带 disk + reason 发卡向 Joy 申请更多），gpu 默认 false，timeout 是按难度估的预计时长（没有上限，只用来显示与判卡住）；容器由启动器 stbcc-docker 代起
+  usable_by:
+    type: str
+    default: universal
+    desc: '谁能列这个工具：universal（任务和子代理都能列）/ subagent（只给子代理用，任务 yaml 写了就拒）；读外部内容的工具写 subagent，并在 yaml 里用注释写明「读外部内容」，只给 isolated: true 的子代理列'
+  hooks:
+    type: map
+    default: '{}'
+    desc: '事件 → [{command: 本文件夹里的文件, match: [函数名]（可选）, timeout: 60s（可选）}]；事件只能是 pre_call / post_call / run_start / run_end，写别的键就拒（control_center/hooks.py）：pre_call 退出码 2 拦下这次调用、stdout {"args": {...}} 改写参数；run_start 退出码 2 这次运行不开跑；run_end stdout {"status": "failed", "error": "原因"} 把 complete 改判 failed；is_editable: false 的工具以平台身份跑，true 的以 sparky 跑（联网同本工具的 network）'
+subagent:
+  name:
+    type: str
+    kinds:
+      agent: 必填
+      generator: 必填
+      engine: 必填
+    allowed: ''
+    desc: 子代理名 = 文件夹名（subagents/<名>/subagent.yaml），也是主模型看到的调用名；不能和工具重名
+  description:
+    type: str
+    kinds:
+      agent: 必填
+      generator: 必填
+      engine: 必填
+    allowed: ''
+    desc: 给主模型看的一句话：什么时候该调我、我能做什么（主模型看到的说明只来自这里）
+  kind:
+    type: str
+    kinds:
+      agent: 必填
+      generator: 必填
+      engine: 必填
+    allowed: agent / generator / engine
+    desc: agent：语言模型带工具，网关跑通用循环；generator：生成程序（prompt + 精确参数进，文件出）；engine：自带循环的程序（prompt 进，结构化结果出）
+  runtime:
+    type: str
+    kinds:
+      agent: 必填
+      generator: 必填
+      engine: 必填
+    allowed: inherit（agent / engine）/ models.yaml 的 runtime
+    desc: 和 model 一起对上 models.yaml 的一个档位；铁律：和主模型的档位不同就先卸主模型、装它的，跑完再装回主模型；generator 不能 inherit
+  model:
+    type: str
+    kinds:
+      agent: 必填
+      generator: 必填
+      engine: 必填
+    allowed: inherit（agent / engine）/ 档位的 model_path
+    desc: 同上；runtime 与 model 要么都写 inherit，要么都写具体的
+  effort:
+    type: str
+    kinds:
+      agent: 可写
+      generator: 不写
+      engine: 可写
+    allowed: minimal / low / medium / high / xhigh（要是模型模板认的）
+    desc: 这个子代理调模型时的推理档位，不随调用它的任务。只在必要时写，非必要留空：不写 = 不传档位，用模型模板的默认。agent：交给它的 pi（同任务的 effort）；engine：放进程序拿到的 STB_MODEL 的 effort 键，用不用、怎么用由程序决定
+  system_prompt:
+    type: str
+    kinds:
+      agent: 必填
+      generator: 不写
+      engine: 不写
+    allowed: ''
+    desc: 子代理的系统提示就是它（平台不另拼说明）；用户消息 = 主模型发来的 prompt
+  tools:
+    type: list
+    kinds:
+      agent: 必填
+      generator: 不写
+      engine: 不写
+    allowed: 登记的工具名（universal 与 subagent 都行）
+    desc: 它能用的工具（可以是 []）；子代理名不能写在这里（子代理不能调子代理）
+  inputs:
+    type: map
+    kinds:
+      agent: 不写
+      generator: 必填
+      engine: 可写
+    allowed: 参数名 → {type, description, default?, enum?, items?, …}
+    desc: 除 prompt 外主模型能传的参数，写法同工具函数参数（JSON schema）：写了 default 的可不传，没写的必传；参数名不能是 prompt / files
+  isolated:
+    type: bool
+    kinds:
+      agent: 可写
+      generator: 不写
+      engine: 可写
+    allowed: true / false（默认）
+    desc: 读外部内容的必须 true（is_editable 必须写 false）：agent 的结果只能是带原文引文的答案，平台核对引文出自这次调用里它的工具返回的原文、question 照抄主模型这次调用写的文字（每条可带 item：正整数，标第几项），才交给主模型，不能被关掉；engine 交回它自己 harness 校验过的结果（server 程序按格式校验），平台不做问答引文核对，原样转交
+  timeout:
+    type: str
+    kinds:
+      agent: 必填
+      generator: 必填
+      engine: 必填
+    allowed: ''
+    desc: 单次调用上限（15m、1h；none = 不限：没有单次上限，子代理每次模型请求仍有自己的 HTTP 时限 600 秒）：从换好模型算起，等 Joy 处理审批卡的时间顺延；不另设轮数上限
+  is_editable:
+    type: bool
+    kinds:
+      agent: 可写
+      generator: 可写
+      engine: 可写
+    allowed: true（默认）/ false
+    desc: 'builder 的计划能不能提出修改它；isolated: true 的必须写 false'
+  hooks:
+    type: map
+    kinds:
+      agent: 可写
+      generator: 可写
+      engine: 可写
+    allowed: pre_call / post_call / run_start / run_end
+    desc: 同工具（control_center/hooks.py）：文件在本文件夹；pre_call / post_call 在主模型每次调用它前后跑（function 是子代理名）
+models:
+  runtime:
+    type: str
+    default: 必填
+    desc: 跑模型的服务栈名（只用来和 model 一起找档位，平台不按它分支）；任务 / 子代理写 runtime + model 找档位
+  model_path:
+    type: str
+    default: 必填（独占档位除外）
+    desc: 实际加载的模型；任务写的 model 要等于它；端点 /models 里 root 等于它的条目就是这个档位（条目没有 root 时比 id），调用名取那一条的 id
+  endpoint:
+    type: str
+    default: 服务档位必填
+    desc: 宿主视角的服务地址（如 http://127.0.0.1:8000/v1）；沙箱经网关转发。没有 endpoint 的档位是独占档位（如 train）：没有服务，只让机器空出来，只按 runtime 匹配。端点不答 /models（宿主程序，如 ComfyUI）时回 HTTP 200 就算在跑
+  api_key:
+    type: str
+    default: 无（带 local）
+    desc: 端点要密钥时写 .env 里的键名（不写值）：平台按键名取值，问 /models 和沙箱里 pi 的请求都带它；不写时 pi 带 local、问 /models 不带
+  vision:
+    type: bool
+    default: 'false'
+    desc: 能看图：true 时 pi 的模型声明带 image 输入（私信附图、生图预览才送得进去）
+  context_window:
+    type: int
+    default: 当主模型的档位必填
+    desc: 模型的上下文长度（token）：写进 pi 的 models.json；监听程序的 ctx.model 也给它（私信任务按它定带多少最近的对话）
+  container:
+    type: str
+    default: 无
+    desc: 档位的容器名：要它在跑才算这个档位在跑；容器在跑、端点还不答 /models 算加载中；停档位后等它消失
+  home:
+    type: str
+    default: 无
+    desc: 宿主上跑的程序（ComfyUI 这类）的安装目录：cutout 在这里找抠图模型，子代理的 install.py 往这里装自定义节点（模型由 download 工具下好再挪进来）；程序的 python 是 <home>/venv/bin/python；没写时用 ~/apps/ComfyUI
+  start:
+    type: str
+    default: 无
+    desc: 起命令（自动切换用）；等它就绪最多 START_TIMEOUT_S（600）秒
+  stop:
+    type: str
+    default: 无
+    desc: 停命令（自动切换用）
+  min_avail_gb:
+    type: number
+    default: _settings.min_avail_gb
+    desc: 加载（独占档位：开跑）前要求的宿主 MemAvailable（GiB）= 档位实际占用 + 余量；不写用全局值
+models._settings:
+  min_avail_gb:
+    type: number
+    default: '0'
+    desc: 全局的加载前内存闸（GiB）：档位没写自己的 min_avail_gb 时用它
+stbcc:
+  web:
+    type: map
+    default: '{}'
+    desc: stbcc-web 的设置；改了要重启 stbcc-web
+  web.port:
+    type: int
+    default: '18090'
+    desc: stbcc-web 的端口
+  web.bind:
+    type: str
+    default: tailscale
+    desc: 监听地址：tailscale = 本机 Tailscale 网卡的 100.x 地址（没有就退回 127.0.0.1）；也可以写一个具体 IP
+  channels:
+    type: list
+    default: 全部已报到的
+    desc: 中枢往外发（系统通知、卡片、状态）给哪些渠道：已报到（data/sockets/channels/<名>.sock）又写在这里的；每次往外发都现读
+  workspace:
+    type: str
+    default: <tool_user 的家目录>/workspace
+    desc: 任务工作区：任务的工作目录是 <workspace>/<任务>（根目录属 sparky，各任务的工作目录多是平台建的、属 joyzhang14；整个归 sparkle 组读写，带组默认可写）；改了要重启 stbcc-runner
+  tool_user:
+    type: str
+    default: sparky
+    desc: 工具用户：工具、监听、任务命令、workflow 步骤以它的身份跑（sudo -u），平台起的容器以它的 uid:gid 跑（按名字现查）；builder 的开发区、预演目录在它的家目录；改了要重启全部 stbcc 服务
+  shared_group:
+    type: str
+    default: sparkle
+    desc: 平台用户与工具用户共用的组：两人都要碰的目录、socket 归它（setgid、组读写）；改了要重启全部 stbcc 服务
+  launcher:
+    type: map
+    default: '{}'
+    desc: owa-launcher（一次性研究容器）的设置：services/owa-launcher/server.ts 启动时读，改了要重启 owa-launcher
+  launcher.port:
+    type: int
+    default: '18081'
+    desc: owa-launcher 的端口
+  launcher.bind:
+    type: list / str
+    default: 127.0.0.1,172.17.0.1
+    desc: 监听地址（本机 + docker0，研究容器经它回连）
+  launcher.max_running:
+    type: int
+    default: '2'
+    desc: 同时跑几个研究容器；每起一个都要过内存守卫
+  launcher.artifact_ttl_seconds:
+    type: int
+    default: '3600'
+    desc: 研究证据 data/tool_state/owa/artifacts/ 留多久（每日清理也按它删）
+  launcher.artifact_root_max_bytes:
+    type: int
+    default: '4294967296'
+    desc: 证据目录总量上限（字节）
+  launcher.model_base_url:
+    type: str
+    default: http://host.docker.internal:8000/v1
+    desc: 请求没带模型地址时研究容器用的模型
+  launcher.searxng_base_url:
+    type: str
+    default: http://searxng:8080
+    desc: 研究容器用的 SearXNG 地址
+  launcher.host_mem_avail_min_gb:
+    type: number
+    default: '6'
+    desc: 宿主可用内存（GiB）低于它不起新研究容器
+  launcher.host_mem_wait_max_s:
+    type: int
+    default: '600'
+    desc: 等内存最多这么久（秒），再失败为 RESOURCE_PRESSURE
+  launcher.worker_env:
+    type: map
+    default: '{}'
+    desc: 研究容器的调参开关（只认 server.ts 的 PASS_ENV 里的键）；键由 launcher 定，不在这张表里逐个列
+  launcher.sandbox:
+    type: map
+    default: '{}'
+    desc: 研究容器的镜像 / 网络 / 内存 / CPU（请求不带 sandbox 时用这里的）
+  launcher.sandbox.image:
+    type: str
+    default: owa-research:latest
+    desc: 研究容器的镜像
+  launcher.sandbox.network:
+    type: str
+    default: owa-net
+    desc: 研究容器的 docker 网络：server.ts 只认 owa-net（写别的不生效，请求里写别的被拒）
+  launcher.sandbox.memory:
+    type: str
+    default: 6g
+    desc: 研究容器的内存上限
+  launcher.sandbox.cpus:
+    type: number
+    default: '4'
+    desc: 研究容器的 CPU 上限

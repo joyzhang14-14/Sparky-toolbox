@@ -1,0 +1,12 @@
+.git
+.venv
+browser/node_modules
+tests
+docs
+services/owa-research/owa_research/schemas
+services/searxng
+services/owa-launcher
+services/owa-research/owa_research/adapters
+*.md
+.pytest_cache
+__pycache__

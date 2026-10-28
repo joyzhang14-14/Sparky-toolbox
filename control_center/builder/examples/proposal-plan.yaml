@@ -1,0 +1,78 @@
+# 开发计划提案（主模型调用 builder 时 prompt 写的 YAML）：用不到的键不写
+plan:
+  purpose: 每天早上私信天气 # 要解决什么问题
+  tools: # 新工具（最多 3 个）
+    - name: weather # 小写字母、数字、连字符；不能和已有工具、子代理重名
+      functions: "weather_today(city)：今天的天气"
+      network: true # 要不要联网
+      deps: [requests==2.32.3] # Python 依赖，写死版本（工具文件夹的 requirements.txt 要一致）
+      add_to: { dm-assistant: {} } # 部署成功后加进哪些已有任务（任务名 → 工具项）；不写就不加
+      docker: null # 要起的一次性容器（同 tool.yaml 的 docker），不起不写
+      untrusted: false # 输出里有别人写的自由文本（网页、邮件、评论…）就写 true：只给子代理用，不能 add_to 进任务
+      hooks: null # 工具的 hooks（同 tool.yaml：{run_end: [{command: 工具文件夹里的脚本}]}），不要不写
+  tasks: # 新任务（最多 2 个）
+    - name: weather-daily
+      description: 每天 7 点私信天气
+      trigger: schedule # schedule / manual / listen
+      schedule: "0 7 * * *" # 5 段 cron（本机时区），只给 schedule
+      priority: 3 # 1–9
+      runtime: vllm-eugr # 和 model 一起对上 models.yaml 里能当主模型的档位（有 endpoint、context_window）
+      model: local-inference-lab/Qwen3.8-Flash-Next-NVFP4
+      enabled_after_deploy: true # 试跑成功后上不上线
+      timeout: 10m # 主模型时间上限（workflow 任务：各步骤在跑的时间合计）；不写由开发时定
+      tools: { weather: {}, reply: {} } # 工具名 → 工具项（一般写 {}；要追加本任务的用法规则写 {guide: …}）
+      subagents: {} # 主模型能调用的子代理（已有的或本计划新建的）→ 子代理项
+      memory: [] # 每次运行注入的记忆文件（只读）：文件或文件夹（文件夹 = 那一层所有 .md），如 [~/Obsidian/USER/USER.md]；不要就写 []
+      # 监听（只给 trigger: listen）：listen 监听名；写 listen_py（listen.py 全文：check(ctx) 定时检查 或 on_event(event, ctx) 订阅事件）= 定义新监听，不写 = 引用已有的同名监听；
+      # listen_events 订阅的事件来源（如 [message]），不订阅不写
+      # workflow 任务：steps（不起 agent，按步骤跑任务文件夹里的 py；不写 runtime / model / tools / subagents / memory）、network（步骤要不要联网）、resumable（步骤中间不能打断才写 false）
+      # hooks：任务的 hooks（同任务 yaml：{run_end: [{command: 任务文件夹里的脚本}], post_call: [{command: …, match: [reply]}]}），不要不写
+      # 没特别说明时，agent 任务（私信任务除外）默认把成品记进任务消息库：hooks 写 {post_call: [{command: record_run.py, match: [reply]}], run_end: [{command: record_run.py}]}
+  change_tools: # 改已有工具（is_editable 为 true 的）
+    - { name: school-canvas, change: 改什么、为什么, fields: { network: true } } # fields 只写要改的声明（network、docker、is_editable、hooks）
+      # 改依赖才写 deps：requirements.txt 的完整新内容（写死版本；[] = 不要依赖），部署时重建它的依赖环境；不写 = requirements.txt 不能动
+  change_tasks: # 改已有任务
+    - {
+        name: dm-assistant,
+        change: 加天气工具,
+        tools_add: { weather: {} },
+        tools_remove: [],
+        subagents_add: {},
+        subagents_remove: [],
+        memory: null,
+        fields: {},
+        listen_py: null,
+      }
+      # fields 只写 trigger、schedule、enabled、priority、listen、listen_events、steps、network、hooks、runtime、model（agent 任务换主模型）、timeout、resumable；改 priority 要有充分理由
+      # 不要改优先级是 10 的任务。
+      # 改 workflow 任务的依赖才写 deps（同 change_tools 的 deps）
+  subagents: # 新子代理（文件夹 subagents/<名>/；不能是隔离的）
+    - {
+        name: wan-art,
+        config: { …subagent.yaml 全文… },
+        files: { server.py: 生成程序 },
+      }
+  change_subagents: # 改已有子代理（is_editable 不是 false 的）
+    - {
+        name: helper,
+        change: 改什么,
+        fields: { timeout: 30m },
+        files: { guide.md: 补用法 },
+      }
+  retire_tools: # 下线已有工具（is_editable 为 true 的）：还在用它的任务写进 remove_from
+    - { name: old-tool, reason: 为什么, remove_from: [dm-assistant] }
+  retire_tasks: # 注销已有任务
+    - { name: old-task, reason: 为什么 }
+  models: # 新工具要跑新模型时的新档位（部署时写进 models.yaml）
+    - {
+        name: qwen-small,
+        profile:
+          {
+            runtime: …,
+            model_path: …,
+            endpoint: …,
+            start: …,
+            stop: …,
+            min_avail_gb: 30,
+          },
+      }

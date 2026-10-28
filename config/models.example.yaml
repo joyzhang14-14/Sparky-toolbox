@@ -1,0 +1,31 @@
+# 模型档位示例：复制成 config/models.yaml，留下你有的、改成你的地址和模型。字段说明以 control_center/schema/fields.yaml 的 models 段为准（stb schema models 看表）。
+# 档位名（顶层的键）自己起；任务写 runtime + model 找档位：runtime 等于档位的 runtime，model 等于档位的 model_path。
+# 端点要是 OpenAI 兼容接口：平台问 <endpoint>/models，条目的 root（没有 root 时比 id）等于 model_path 就算这个档位在跑，调用名取那一条的 id。
+# 任务要的档位不在跑时，运行器先停掉别的在跑的档位（stop，等它从 /models 消失）、再用 start 起它；start 和 stop 要么都写，要么都不写。
+# 都不写的是常驻接口（Ollama、云端这类一直开着的）：平台不起不停，换到它只看 /models 有没有这个模型，从它换走也不停它。
+_settings:
+  min_avail_gb: 0      # 加载档位前要求的宿主可用内存（GiB）；档位自己写了 min_avail_gb 就按档位的。0 = 不查
+
+local-vllm:            # 本机 vLLM（容器里跑），平台按需起停
+  runtime: vllm                       # 服务栈名，只用来和 model 一起找档位
+  model_path: Qwen/Qwen3-8B           # vllm serve 加载的模型（= /models 里的 root）；任务的 model 写它
+  endpoint: http://127.0.0.1:8000/v1  # 宿主视角的地址；沙箱经网关转发，不用对容器开放
+  container: vllm                     # 容器名：它在跑才算这个档位在跑；容器在跑、端点还不答算加载中
+  start: docker start vllm            # 起命令（先自己 docker run --name vllm … 建好容器）；最多等 600 秒就绪
+  stop: docker stop vllm              # 停命令：换别的档位时用
+  context_window: 32768               # 上下文长度（token）；当任务主模型的档位必填
+  vision: false                       # 能看图才写 true
+  min_avail_gb: 24                    # 起它之前宿主至少要有这么多可用内存（模型占用 + 余量）
+
+ollama:                # 本机 Ollama 的 OpenAI 兼容端点：常驻接口（ollama serve 自己开着，不写 start / stop）
+  runtime: ollama
+  model_path: qwen3:8b                # ollama pull 过的模型名（/models 只有 id，按 id 认）
+  endpoint: http://127.0.0.1:11434/v1
+  context_window: 32768               # 要和 Ollama 实际给的上下文一致（OLLAMA_CONTEXT_LENGTH 或模型的 num_ctx）
+
+cloud:                 # 要密钥的云端 OpenAI 兼容接口（这里以 OpenRouter 为例）：常驻接口，不写 start / stop
+  runtime: openrouter
+  model_path: qwen/qwen3-235b-a22b    # 接口 /models 里的模型 id
+  endpoint: https://openrouter.ai/api/v1
+  api_key: STB_OPENROUTER_API_KEY     # .env 里的键名（不写值）：在 .env 加一行 STB_OPENROUTER_API_KEY=<你的密钥>
+  context_window: 131072

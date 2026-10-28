@@ -1,0 +1,10 @@
+# stbcc-cleanup：每天清一次过期的运行记录、私信附件、已处理的审批卡、媒体成品（保留期见 services/cleanup/stb_cleanup.py 与手册 §2）
+# 安装：`stb cleanup --install`（填充 {REPO} 后连同 stbcc-cleanup.timer 装到 ~/.config/systemd/user/，启用定时器）
+[Unit]
+Description=sparky-toolbox daily cleanup of expired run data
+
+[Service]
+UMask=0022
+Type=oneshot
+WorkingDirectory={REPO}
+ExecStart={REPO}/.venv/bin/python {REPO}/services/cleanup/stb_cleanup.py

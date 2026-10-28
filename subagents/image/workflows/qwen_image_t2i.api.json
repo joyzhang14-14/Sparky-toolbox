@@ -1,0 +1,11 @@
+{
+ "459:451": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": "qwen-image-2.1-UC-BF16.gguf"}},
+ "459:452": {"class_type": "TextEncodeQwenImage21", "inputs": {"prompt": "", "negative_prompt": "", "resolution": 1024, "clip": ["459:453", 0]}},
+ "459:453": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen3vl_8b_bf16.safetensors", "type": "qwen_image", "device": "default"}},
+ "459:454": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_2.1_vae_bf16.safetensors"}},
+ "459:456": {"class_type": "EmptyLatentImage", "inputs": {"width": ["13", 0], "height": ["13", 1], "batch_size": 1}},
+ "459:457": {"class_type": "VAEDecode", "inputs": {"samples": ["459:458", 0], "vae": ["459:454", 0]}},
+ "459:458": {"class_type": "KSampler", "inputs": {"seed": 593103825222985, "steps": 25, "cfg": 1, "sampler_name": "euler", "scheduler": "simple", "denoise": 1, "model": ["459:451", 0], "positive": ["459:452", 0], "negative": ["459:452", 1], "latent_image": ["459:456", 0]}},
+ "13": {"class_type": "ResolutionSelector", "inputs": {"aspect_ratio": "1:1 (Square)", "megapixels": 1, "multiple": 8}},
+ "461": {"class_type": "SaveImageAdvanced", "inputs": {"filename_prefix": "Qwen_image_2.1", "format": "png", "format.bit_depth": "8-bit", "format.input_color_space": "sRGB", "images": ["459:457", 0]}}
+}

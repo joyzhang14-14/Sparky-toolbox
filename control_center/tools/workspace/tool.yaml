@@ -1,0 +1,6 @@
+# 平台自带的工具 workspace（字段说明见 control_center/schema/fields.yaml 与手册 §4.1、§4.10）
+# 没有 server.py：函数是沙箱里 pi 自带的 read、write、edit、ls、grep、find、bash（registry.BUILTIN_FUNCTIONS），任务列了网关才让 pi 扩展打开
+name: workspace
+description: "读写文件、在沙箱里跑命令"
+is_editable: false   # 平台核心：builder 的计划不能改它
+network: false       # 沙箱断网，只连网关

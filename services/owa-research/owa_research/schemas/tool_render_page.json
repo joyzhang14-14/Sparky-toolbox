@@ -1,0 +1,56 @@
+{
+  "$defs": {
+    "RenderAction": {
+      "enum": [
+        "navigate",
+        "read_dom",
+        "scroll"
+      ],
+      "title": "RenderAction",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "浏览器渲染 JS 页面并读取 DOM 文本；只读导航和滚动",
+  "properties": {
+    "url": {
+      "maxLength": 2000,
+      "title": "Url",
+      "type": "string"
+    },
+    "action": {
+      "$ref": "#/$defs/RenderAction",
+      "default": "navigate"
+    },
+    "wait_for_selector": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Wait For Selector"
+    },
+    "scroll_to_bottom": {
+      "default": false,
+      "title": "Scroll To Bottom",
+      "type": "boolean"
+    },
+    "max_chars": {
+      "default": 16000,
+      "maximum": 100000,
+      "minimum": 500,
+      "title": "Max Chars",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "url"
+  ],
+  "title": "RenderPageParams",
+  "type": "object"
+}

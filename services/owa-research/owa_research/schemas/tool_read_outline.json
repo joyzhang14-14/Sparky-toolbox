@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "description": "只返回页面或文档的标题/章节/表格清单，不返回正文",
+  "properties": {
+    "url": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Url"
+    },
+    "artifact_id": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Artifact Id"
+    }
+  },
+  "title": "ReadOutlineParams",
+  "type": "object"
+}

@@ -1,0 +1,13 @@
+# 工具 transcribe 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: transcribe
+# Qwen3-ASR-1.7B + Qwen3-ForcedAligner-0.6B 在一次性 GPU 容器 stb-docker-base 里跑（~/venvs/qwen-asr，不换模型，和主模型同时跑），开跑前查可用内存
+description: "语音转文字：音频或视频的音轨转成分段文字、逐词时间戳和 SRT 字幕"
+network: false
+docker:
+  images: [stb-docker-base]
+  gpu: true
+  memory: 8g        # 2026-10-03 实测容器内存峰值 4.7 GiB（含读模型的页缓存；显存约 6 GB 走驱动，不算在容器内存里）
+  cpus: 4
+  pids: 512
+  tmp: 1g
+  timeout: 30m      # 预计时长，只用来显示、判卡住

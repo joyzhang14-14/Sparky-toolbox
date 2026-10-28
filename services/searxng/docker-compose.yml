@@ -1,0 +1,37 @@
+# SearXNG 常驻容器。启动用 ./up.sh（它会创建 owa-net、检查端口、生成 secret）。
+services:
+  searxng:
+    # 固定到 2026-09-17 实测的镜像 digest（DOCKER_TAG 2026.9.17-274b63b67）
+    image: searxng/searxng@sha256:ba0a344c566ecc6e4429e81d02d93a01fa05c80e9fb6d08f0a1e57a729aa6d87
+    container_name: owa-searxng
+    restart: unless-stopped
+    networks:
+      - owa-net
+    ports:
+      # 宿主只发布 loopback 供 doctor 诊断；研究容器经 owa-net 按服务名 searxng:8080 访问
+      - "127.0.0.1:18080:8080"
+    volumes:
+      - ./settings.yml:/etc/searxng/settings.yml:ro
+    env_file:
+      - secret.env
+    environment:
+      SEARXNG_BASE_URL: "http://searxng:8080/"
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    pids_limit: 512
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+networks:
+  owa-net:
+    external: true

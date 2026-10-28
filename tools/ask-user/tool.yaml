@@ -1,0 +1,4 @@
+# 工具 ask-user 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: ask-user
+description: "向 Joy 提问：单选、多选或填空，一轮 1–6 题。"
+network: false

@@ -1,0 +1,16 @@
+# stbcc-builder：builder 的开发区与部署（开发区里写文件跑命令、试跑、要凭证、合入、写 models.yaml 档位；control_center/builder/service.py）。
+# 开发工具 builder-dev（只给子代理 builder 用）以 sparky + Landlock 运行，只经 data/sockets/builder.sock 请它代办。由 `stb builder --install` 填充 {STB}/{REPO} 后装到 ~/.config/systemd/user/
+[Unit]
+Description=sparky-toolbox builder service (plans, dev area, deploy)
+After=network-online.target
+
+[Service]
+UMask=0022
+Type=simple
+WorkingDirectory={REPO}
+ExecStart={STB} builder serve
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

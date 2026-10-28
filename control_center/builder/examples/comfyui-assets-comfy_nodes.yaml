@@ -1,0 +1,4 @@
+# 子代理文件夹里的 comfy_nodes.yaml：要装的 ComfyUI 自定义节点，一个仓库一项
+- repo: https://github.com/<作者>/<仓库>
+  ref: <commit 或 tag>          # 写死版本，别写分支名
+  classes: [NodeClassName]      # 工作流要用的节点类名（节点仓库 NODE_CLASS_MAPPINGS 的键），试跑时在 /object_info 里逐个查

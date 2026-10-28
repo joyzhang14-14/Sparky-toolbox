@@ -1,0 +1,14 @@
+{
+  "name": "owa-browser-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "open-web-access 研究容器内的浏览器子服务：Playwright(patchright) + Chromium，只读渲染与 DOM 读取",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "patchright": "1.63.0"
+  }
+}

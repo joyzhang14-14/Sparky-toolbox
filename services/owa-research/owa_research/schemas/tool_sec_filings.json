@@ -1,0 +1,100 @@
+{
+  "$defs": {
+    "SecAction": {
+      "enum": [
+        "filings",
+        "concept"
+      ],
+      "title": "SecAction",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "SEC EDGAR 专用查询：列公司申报文件（含原文 URL）或取 XBRL 财务概念值（美股公司）",
+  "properties": {
+    "company": {
+      "description": "ticker（如 NVDA）或 CIK 数字",
+      "maxLength": 20,
+      "minLength": 1,
+      "title": "Company",
+      "type": "string"
+    },
+    "action": {
+      "$ref": "#/$defs/SecAction",
+      "default": "filings"
+    },
+    "forms": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "filings：表单类型过滤，如 ['10-K','10-Q']",
+      "title": "Forms"
+    },
+    "concept": {
+      "anyOf": [
+        {
+          "maxLength": 80,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "concept：revenue/net_income/operating_income/gross_profit/rnd/total_assets/eps_diluted/cash 或 us-gaap 标签",
+      "title": "Concept"
+    },
+    "form": {
+      "anyOf": [
+        {
+          "maxLength": 10,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "10-K",
+      "description": "concept：只取该表单的值",
+      "title": "Form"
+    },
+    "fiscal_years": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 10,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Fiscal Years"
+    },
+    "limit": {
+      "default": 10,
+      "maximum": 50,
+      "minimum": 1,
+      "title": "Limit",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "company"
+  ],
+  "title": "SecFilingsParams",
+  "type": "object"
+}

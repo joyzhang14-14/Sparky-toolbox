@@ -1,0 +1,2 @@
+{"name": "weather-daily", "change": "改到每天 8 点、去掉不用的 workspace、加上本计划的新工具 aqi", "fields": {"schedule": "0 8 * * *"},
+ "tools_add": {"aqi": {}}, "tools_remove": ["workspace"]}

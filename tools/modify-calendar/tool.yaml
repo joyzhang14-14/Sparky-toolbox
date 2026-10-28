@@ -1,0 +1,5 @@
+# 工具 modify-calendar 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: modify-calendar
+# 走 CalDAV；放哪个日历、能不能改由任务的 system_prompt 定
+description: "读写 Joy 的 iCloud 日历（与 Mac / iPhone 同步）：查事件、加事件、删本工具加的事件"
+network: true

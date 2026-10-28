@@ -1,0 +1,23 @@
+# stbcc.yaml：平台自己的设置（stbcc 各服务与 owa-launcher 读；进 git）。凭证与个人标识只在 .env；模型档位在同目录的 models.yaml；子代理在 subagents/<名>/。
+# 改了要重启对应的服务（systemctl --user restart stbcc-web / stbcc-hub / owa-launcher）；workspace 改了还要重启 stbcc-runner。
+web:
+  port: 18090          # stbcc-web 的端口
+  bind: tailscale      # 监听地址：tailscale = 本机 Tailscale 网卡的 100.x 地址（没有就退回 127.0.0.1）；也可以写一个具体 IP
+channels: [discord, web]   # 中枢往外发（系统通知、卡片、状态）给哪些渠道：已报到（data/sockets/channels/<名>.sock）又写在这里的；不写 = 全部已报到的
+workspace: /home/sparky/workspace             # 任务工作区：任务的工作目录是 <workspace>/<任务>（属主 sparky，joyzhang14 有 rwx 与默认 ACL）
+launcher:              # owa-launcher（isolated-web-search 的一次性研究容器）的设置：services/owa-launcher/server.ts 启动时读，改了要 systemctl --user restart owa-launcher
+  port: 18081
+  bind: [127.0.0.1, 172.17.0.1]    # 本机 + docker0（研究容器经它回连）
+  max_running: 2       # 同时跑几个研究容器（D21）；每起一个都要过内存守卫
+  artifact_ttl_seconds: 3600        # 研究证据 data/tool_state/owa/artifacts/ 留多久（services/cleanup 也按它删）
+  artifact_root_max_bytes: 4294967296   # 证据目录总量上限（4 GiB）
+  model_base_url: http://host.docker.internal:8000/v1   # 请求没带模型地址时研究容器用的模型
+  searxng_base_url: http://searxng:8080
+  host_mem_avail_min_gb: 6   # 宿主可用内存低于它不起新研究容器
+  host_mem_wait_max_s: 600   # 等内存最多这么久，再失败为 RESOURCE_PRESSURE
+  worker_env: {}       # 研究容器的调参开关（OWA_RERANK_ENABLED 等，只认 server.ts 的 PASS_ENV）；OWA_USER_AGENT 带联系邮箱，留在 .env
+  sandbox:             # 研究容器的镜像 / 网络 / 内存 / CPU（请求不带 sandbox 时用这里的）
+    image: owa-research:latest
+    network: owa-net
+    memory: 6g
+    cpus: 4

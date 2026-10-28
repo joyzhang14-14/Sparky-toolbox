@@ -1,0 +1,35 @@
+# 3D 模型子代理（generator）：本地 ComfyUI 跑 Pixal3D（bf16 原版），一张图或同一物体的多角度图生成带 PBR 贴图的 GLB；主模型传 prompt + 下面的 inputs，交回成品路径和一张 4 角度预览拼图
+name: model3d
+# 调用前网关卸下主模型、加载 ComfyUI，调用后换回（切换来回约 5 分钟，不算进 timeout）；加载期间 Joy 那边显示 ⏳
+description: "用本地模型把图片做成 3D 模型（带贴图的 GLB）：一张图，或同一物体正面 + 左 / 后 / 右的多角度图。"
+kind: generator
+runtime: comfyui            # 和任务不同：调用前网关卸主模型、起 ComfyUI，调用后换回（切换时间不算进单次上限）
+model: pixal3d
+timeout: 15m                # 单次调用：生成 + 取成品（不含切换模型）；单图实测约 3 分钟
+is_editable: false          # 带以平台身份跑的 hooks（查输入图、删 ComfyUI 里的副本）：builder 的计划不能改它
+inputs:                     # 同 server.py 的函数参数（默认值、上下限一致）
+  image:
+    type: string
+    description: 正面图（工作目录下图片的绝对路径）：一个物体，背景会自动抠掉；只给它就是单图生成
+  left:
+    type: string
+    default: ""
+    description: 同一物体的左侧图（画面里物体朝左），给了任一侧就按多角度生成
+  back:
+    type: string
+    default: ""
+    description: 同一物体的背面图
+  right:
+    type: string
+    default: ""
+    description: 同一物体的右侧图（画面里物体朝右）
+  seed:
+    type: integer
+    minimum: -1
+    default: -1
+    description: 随机种子，-1 = 随机
+hooks:
+  pre_call:                 # 换模型之前先查输入图（在不在、是不是图片），不过就拦下，不白卸主模型
+    - command: check_inputs.py
+  post_call:                # ComfyUI 里的输入图与成品副本（~/apps/ComfyUI/input|output/stb/<运行 id>/）sparky 删不了：每次调用结束后以平台身份删（同一运行还有调用在途就等最后一个）
+    - command: comfy_cleanup.py

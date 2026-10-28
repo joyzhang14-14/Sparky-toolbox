@@ -1,0 +1,6 @@
+# 工具 builder-dev 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: builder-dev
+description: "builder 子代理的开发区操作：写文件、跑命令、试跑、检查、要凭证、合入、查计划状态与规范"
+usable_by: subagent   # 只列在子代理 builder 的 tools 里
+network: false
+is_editable: false    # 平台核心：builder 的计划不能改它

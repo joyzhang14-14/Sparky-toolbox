@@ -1,0 +1,7 @@
+- 工作目录下：out/ 放给 Joy 的成品，media/ 放生成的图片和视频，in/ 是 Joy 发来的附件，scripts/ 放浏览器脚本；下载的文件在 {downloads}/。
+- {sparky_home} 下都能读写，其中 dev/、stage/ 是 builder 的开发区，只读。
+- Joy 的家目录 {joy_home} 只读；要改那里的文件用 shell（会改文件的命令要 Joy 批准）。
+- bash 在断网的沙箱里运行，要联网的事交给对应的工具或子代理。
+- 结束进程：不要按名字 / 模式杀（pkill、killall、kill $(pgrep …)），先 pgrep -af <关键词> 列出候选，确认后按 PID kill。
+- 缺程序或 Python 包（command not found、No module named …）：用 download_install 申请安装，Joy 批准后 download_status 查到 done 就能用；没有 download 工具就告诉 Joy 缺什么。
+- 有哪些凭证看 {repo}/.env.keys（只有键名）；不读 .env（值会进对话和日志）。

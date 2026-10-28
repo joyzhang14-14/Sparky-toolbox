@@ -1,0 +1,8 @@
+# 起容器的工具在 tool.yaml 里写 docker 段（计划 tools[].docker 写成一样）
+name: example
+description: "一句话说清这个工具做什么"
+network: false
+docker:
+  images: [stb-example]     # 或已有镜像；自带 tools/<名>/Dockerfile 时部署时平台建成 stb-<名>
+  memory: 4g                # 默认 4g，最多 8g；cpus 默认 2 最多 8；pids 默认 512 最多 2048；tmp 默认 1g 最多 4g
+  timeout: 5m               # 预计时长，只用来显示、判卡住

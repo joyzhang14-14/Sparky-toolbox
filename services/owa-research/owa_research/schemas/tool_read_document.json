@@ -1,0 +1,73 @@
+{
+  "additionalProperties": false,
+  "description": "下载并解析 PDF/Office/图片，返回带页码/单元格定位的证据块",
+  "properties": {
+    "url": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Url"
+    },
+    "artifact_id": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Artifact Id"
+    },
+    "pages": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 100,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "只解析这些页（1 起）",
+      "title": "Pages"
+    },
+    "extract_tables": {
+      "default": true,
+      "title": "Extract Tables",
+      "type": "boolean"
+    },
+    "vision_pages": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "强制用视觉读取这些页的页图（文字层缺失/OCR 错乱时用；串行、每页一次模型调用）",
+      "title": "Vision Pages"
+    }
+  },
+  "title": "ReadDocumentParams",
+  "type": "object"
+}

@@ -1,0 +1,78 @@
+# stb 模型档位（规格第 8 节、D32）。endpoint 为宿主机视角。任务开跑时若在跑的不是它指定的档位，运行器卸载在跑的全部其他已登记档位、再加载指定档位
+# （档位要有 start / stop；起命令之后最多等 600 秒就绪；加载时间不计入任务超时）。任务跑完模型留着，下一个要别的档位的任务开跑时再换。
+# container 是档位的容器名：要它在跑才算这个档位在跑；容器在跑、端点还不答 /models 算加载中。
+# model_path 是容器里实际加载的模型：容器名与它都对上才算这个档位在跑，容器名对上、模型不对的当未登记容器（不停、不用）。
+# runtime 是跑模型的服务栈：任务写 runtime + model（= 档位的 model_path）指定档位；没有 endpoint 的是独占档位，只按 runtime 匹配。
+# 端点答 /models 时 root 等于 model_path 的那一条就是这个档位（调用名取它的 id）；不答 /models 的（宿主进程，如 ComfyUI）：endpoint 回 HTTP 200 = 在跑。
+# 没登记、运行器不会自动启停：llama.cpp（~/scripts/llama-uncensored.sh 用 exec 前台运行、不会自己返回）。旧版本备份：models.yaml.bak-20260924
+_settings:
+  # 加载前要求的宿主 MemAvailable（GiB）；卸载后等不到、或未登记的进程占着内存达不到，任务判失败、不加载（免得 OOM 重启）。
+  # 依据：MemTotal 121.7 GiB；eugr 稳态 avail ≈ 12–13 GiB（owa-launcher/server.ts 的 MEM_AVAIL_MIN_GB）；ComfyUI 占约 29 GB 时 avail 87 GiB ⇒ 全空约 115 GiB，
+  # eugr 占用约 103 GiB。阈值不低于最大登记档位的占用加余量：已知占用最大的是 eugr，103 + 5 GiB 余量取 108（登记更大的档位时跟着调高）。
+  # 全空能过，≥ 7 GiB 的未登记占用会被拦下。档位自己写了 min_avail_gb（实际占用 + 余量）就按档位的，没写（vLLM 档位）用这里的。
+  min_avail_gb: 108
+flash-next-vllm:
+  runtime: vllm-eugr
+  endpoint: http://127.0.0.1:8000/v1
+  vision: true
+  container: vllm_node
+  model_path: local-inference-lab/Qwen3.8-Flash-Next-NVFP4 # 配方 qwen3.8-flash-next-nvfp4-solo 的 vllm serve 参数
+  start: systemctl --user restart vllm-eugr # oneshot 单元：active(exited) 时 start 不生效，要 restart
+  stop: sh -c 'systemctl --user stop vllm-eugr; exec ~/scripts/vllm-eugr.sh stop' # 先停单元（状态回到 inactive），再删容器：单元起的、手动跑脚本起的都能停
+  context_window: 262144   # 模型的上下文长度（写进 pi 的 models.json；监听程序的 ctx.model 也给它，私信任务按它定带多少最近的对话）
+flash-next-abliterated:
+  runtime: vllm-eugr
+  endpoint: http://127.0.0.1:8000/v1
+  vision: true
+  container: vllm_node
+  model_path: huginnfork/Qwen3.8-Flash-Next-NVFP4-Abliterated # 配方 qwen3.8-flash-next-nvfp4-abliterated-solo 的 vllm serve 参数
+  start: systemctl --user restart vllm-eugr-abl # oneshot 单元（仓库 services/systemd/vllm-eugr-abl.service），同 vllm-eugr
+  stop: sh -c 'systemctl --user stop vllm-eugr-abl; exec ~/scripts/vllm-eugr-abl.sh stop' # 同上
+  context_window: 262144   # 同上
+comfyui-qwen-image:    # 宿主进程（不是容器）：endpoint 回 200 算在跑，加载别的档位前会被停掉腾内存
+  runtime: comfyui
+  model_path: qwen-image-2.1-uncensored
+  endpoint: http://127.0.0.1:8188
+  home: ~/apps/ComfyUI    # ComfyUI 的安装目录：cutout 在这里找抠图模型，子代理的 install.py 往这里装自定义节点；python 是 <home>/venv/bin/python
+  start: ~/scripts/comfy.sh start
+  stop: ~/scripts/comfy.sh stop
+  # 实测 2026-09-27（临时 stb 任务，1024×1024、25 步文生图）：空机 MemAvailable 116.5 GiB → 生成中最低 84.2 GiB，占用约 32 GiB；
+  # 加 8 GiB 余量（更大的 megapixels、改图多张参考图）取 40
+  min_avail_gb: 40
+comfyui-minimax-h3:    # MiniMax H3 视频（文生视频 / 首尾帧生视频，带音频）：和 comfyui-qwen-image 是同一个 ComfyUI 进程，模型按工作流按需加载
+  runtime: comfyui
+  model_path: minimax-h3
+  endpoint: http://127.0.0.1:8188
+  home: ~/apps/ComfyUI    # ComfyUI 的安装目录：cutout 在这里找抠图模型，子代理的 install.py 往这里装自定义节点；python 是 <home>/venv/bin/python
+  start: ~/scripts/comfy.sh start
+  stop: ~/scripts/comfy.sh stop
+  # 实测 2026-09-27（临时 stb 任务，864×480、5 秒、turbo 8 步）：空机 MemAvailable 116.5 GiB → 生成中最低 74.3 GiB，占用约 42 GiB；
+  # 更高分辨率、更长时长没测，加 18 GiB 余量取 60
+  min_avail_gb: 60
+comfyui-pixal3d:       # Pixal3D 图生 3D（单图 / 多角度图，bf16 原版）：和 comfyui-qwen-image 是同一个 ComfyUI 进程，模型按工作流按需加载
+  runtime: comfyui
+  model_path: pixal3d
+  endpoint: http://127.0.0.1:8188
+  home: ~/apps/ComfyUI    # ComfyUI 的安装目录：cutout 在这里找抠图模型，子代理的 install.py 往这里装自定义节点；python 是 <home>/venv/bin/python
+  start: ~/scripts/comfy.sh start
+  stop: ~/scripts/comfy.sh stop
+  # 实测 2026-10-27（临时 stb 任务，形状 1536³、贴图 4096）：单图空机 MemAvailable 116.9 GiB → 最低 91.5 GiB，占用约 25 GiB，170 秒；
+  # 四个角度连跑两次，最低 70.1 GiB，占用约 47 GiB，约 5 分钟；加 8 GiB 余量取 55
+  min_avail_gb: 55
+
+qad-teacher:  # 学生 BF16 合并模型(v2)在训练题上自答,给 QAD 当目标文本;任务 event-student-qad-gen 连它(10-13)
+  runtime: vllm-qad
+  model_path: /models/Qwen3.5-9B-event-v2
+  endpoint: http://127.0.0.1:8011/v1
+  container: vllm_qad
+  # 镜像的 qwen_triton_warmup 按 Flash-Next 维度造输入,对 9B 断言失败 → 挂载任务文件夹里的空实现跳过预热
+  start: >-
+    docker run -d --gpus all --ipc=host --name vllm_qad -e HF_HUB_OFFLINE=1
+    -v /home/joyzhang14/models/train:/models:ro
+    -v /home/joyzhang14/sparky-toolbox/tasks/event-student-qad-gen/vllm_patch/qwen_triton_warmup.py:/usr/local/lib/python3.12/dist-packages/vllm/model_executor/warmup/qwen_triton_warmup.py:ro
+    -p 127.0.0.1:8011:8000 --entrypoint vllm vllm-node-b12x:pinned-20260913
+    serve /models/Qwen3.5-9B-event-v2 --served-model-name teacher --max-model-len 40960 --max-num-seqs 16
+    --gpu-memory-utilization 0.45 --enable-prefix-caching --limit-mm-per-prompt '{"image":1,"video":0}'
+  stop: docker rm -f vllm_qad
+  # gpu-memory-utilization 0.45 ≈ 55 GiB(10-05 同参数跑过 v1 自答),加 10 GiB 余量
+  min_avail_gb: 65

@@ -1,0 +1,3 @@
+{"name": "qad-teacher", "profile": {"runtime": "vllm-qad", "model_path": "/models/Qwen3.5-9B-event-orig", "endpoint": "http://127.0.0.1:8011/v1", "container": "vllm_qad",
+ "start": "docker run -d --gpus all --ipc=host --name vllm_qad -v /home/joyzhang14/models/train:/models:ro -p 127.0.0.1:8011:8000 --entrypoint vllm vllm-node-b12x:latest serve /models/Qwen3.5-9B-event-orig --served-model-name teacher",
+ "stop": "docker rm -f vllm_qad", "min_avail_gb": 40}}

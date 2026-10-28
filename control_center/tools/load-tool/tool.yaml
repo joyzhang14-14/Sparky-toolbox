@@ -1,0 +1,6 @@
+# 平台工具 load-tool 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: load-tool
+# 没有 server.py：函数 load_tool 由网关处理（registry.GATEWAY_FUNCTIONS，gateway.py _load_tool）；guide 与能加载的名字目录写进系统提示（prompts.catalog_text）
+description: "按名字加载系统提示目录里的工具和子代理，加载后直接调用"
+is_editable: false   # 平台核心
+network: false

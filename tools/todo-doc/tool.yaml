@@ -1,0 +1,5 @@
+# 工具 todo-doc 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: todo-doc
+# 目录 ~/Obsidian/UCI（Syncthing 同步到 Mac）；能改哪些由任务的 system_prompt 定
+description: "读写 Joy 的 UCI 笔记：读笔记、列 / 加 / 勾待办、整篇写"
+network: false

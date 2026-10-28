@@ -1,0 +1,9 @@
+# Obsidian 里的手册（Mac 上改、Syncthing 同步到 ~/Obsidian）一变，就拷一份到仓库根目录（这一份不进 git）
+[Unit]
+Description=sparky-toolbox manual sync (watch Obsidian copy)
+
+[Path]
+PathChanged=%h/Obsidian/Sparky/How-to-set-a-task-on-Sparky.md
+
+[Install]
+WantedBy=default.target

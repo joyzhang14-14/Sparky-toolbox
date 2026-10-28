@@ -1,0 +1,1010 @@
+{
+  "$defs": {
+    "AccessFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "maxLength": 2000,
+          "title": "Url",
+          "type": "string"
+        },
+        "error": {
+          "$ref": "#/$defs/ToolErrorInfo"
+        },
+        "challenge_type": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "如 cloudflare-js / cloudflare-managed / datadome",
+          "title": "Challenge Type"
+        }
+      },
+      "required": [
+        "url",
+        "error"
+      ],
+      "title": "AccessFailure",
+      "type": "object"
+    },
+    "Answer": {
+      "additionalProperties": false,
+      "description": "对 ResearchRequest.extract 里一个问题的回答。quote 是来源原文（结果组装时逐字核对过）；答不上 answer 为 null。",
+      "properties": {
+        "question": {
+          "maxLength": 500,
+          "title": "Question",
+          "type": "string"
+        },
+        "answer": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answer"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "maxLength": 1500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "来源原文，已在该来源内容里逐字核对",
+          "title": "Quote"
+        },
+        "source_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Id"
+        },
+        "uncertain": {
+          "default": false,
+          "description": "引文核对不上、来源冲突或推断得出时为 true",
+          "title": "Uncertain",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "question"
+      ],
+      "title": "Answer",
+      "type": "object"
+    },
+    "CacheStats": {
+      "additionalProperties": false,
+      "properties": {
+        "page_hits": {
+          "default": 0,
+          "title": "Page Hits",
+          "type": "integer"
+        },
+        "page_misses": {
+          "default": 0,
+          "title": "Page Misses",
+          "type": "integer"
+        },
+        "prefix_cache_hit_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prefix Cache Hit Tokens"
+        }
+      },
+      "title": "CacheStats",
+      "type": "object"
+    },
+    "Cell": {
+      "additionalProperties": false,
+      "properties": {
+        "raw": {
+          "description": "原始单元格文本",
+          "maxLength": 500,
+          "title": "Raw",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "规范化数值，无法解析为 null",
+          "title": "Value"
+        },
+        "is_header": {
+          "default": false,
+          "title": "Is Header",
+          "type": "boolean"
+        },
+        "row_span": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Row Span",
+          "type": "integer"
+        },
+        "col_span": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Col Span",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "raw"
+      ],
+      "title": "Cell",
+      "type": "object"
+    },
+    "Claim": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 2000,
+          "title": "Text",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ClaimKind"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "locators": {
+          "items": {
+            "$ref": "#/$defs/Locator"
+          },
+          "maxItems": 20,
+          "title": "Locators",
+          "type": "array"
+        },
+        "uncertain": {
+          "default": false,
+          "description": "无法核验、OCR 模糊或来源冲突时为 true",
+          "title": "Uncertain",
+          "type": "boolean"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "text",
+        "kind",
+        "source_ids"
+      ],
+      "title": "Claim",
+      "type": "object"
+    },
+    "ClaimKind": {
+      "enum": [
+        "source_statement",
+        "inference"
+      ],
+      "title": "ClaimKind",
+      "type": "string"
+    },
+    "Disagreement": {
+      "additionalProperties": false,
+      "properties": {
+        "topic": {
+          "maxLength": 500,
+          "title": "Topic",
+          "type": "string"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "maxItems": 20,
+          "minItems": 2,
+          "title": "Positions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "topic",
+        "positions"
+      ],
+      "title": "Disagreement",
+      "type": "object"
+    },
+    "ErrorCode": {
+      "enum": [
+        "TOOL_NOT_ALLOWED",
+        "SSRF_BLOCKED",
+        "MODEL_UNAVAILABLE",
+        "MODEL_CAPABILITY_UNVERIFIED",
+        "SEARCH_UNAVAILABLE",
+        "RATE_LIMITED",
+        "NEEDS_HUMAN_VERIFICATION",
+        "UNSUPPORTED_FORMAT",
+        "EXTRACTION_FAILED",
+        "RESOURCE_PRESSURE",
+        "BUDGET_EXCEEDED",
+        "CANCELLED",
+        "INVALID_ARGUMENT",
+        "FETCH_FAILED"
+      ],
+      "title": "ErrorCode",
+      "type": "string"
+    },
+    "ImageKind": {
+      "enum": [
+        "photo",
+        "illustration",
+        "logo",
+        "icon",
+        "screenshot",
+        "other"
+      ],
+      "title": "ImageKind",
+      "type": "string"
+    },
+    "ImageResult": {
+      "additionalProperties": false,
+      "description": "研究带回的图：看图模型打过分、代码按规则筛过（相关度 ≥ 2、没有可疑文字、字不多）。图存在证据目录 <artifact_id>.png。",
+      "properties": {
+        "image_id": {
+          "maxLength": 16,
+          "title": "Image Id",
+          "type": "string"
+        },
+        "artifact_id": {
+          "maxLength": 128,
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "source_id": {
+          "description": "图所在网页（或以图搜图的出处）",
+          "maxLength": 64,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "image_url": {
+          "maxLength": 2000,
+          "title": "Image Url",
+          "type": "string"
+        },
+        "width": {
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/ImageKind"
+        },
+        "relevant": {
+          "maximum": 3,
+          "minimum": 2,
+          "title": "Relevant",
+          "type": "integer"
+        },
+        "description": {
+          "maxLength": 300,
+          "title": "Description",
+          "type": "string"
+        },
+        "file": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "宿主拷进任务工作目录后的沙箱路径（sparky-toolbox 填）",
+          "title": "File"
+        }
+      },
+      "required": [
+        "image_id",
+        "artifact_id",
+        "source_id",
+        "image_url",
+        "width",
+        "height",
+        "kind",
+        "relevant",
+        "description"
+      ],
+      "title": "ImageResult",
+      "type": "object"
+    },
+    "Locator": {
+      "additionalProperties": false,
+      "description": "证据在来源中的位置；未知项为 null。",
+      "properties": {
+        "page": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "section": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Section"
+        },
+        "table_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Table Index"
+        },
+        "row": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Row"
+        },
+        "col": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Col"
+        },
+        "cell": {
+          "anyOf": [
+            {
+              "maxLength": 32,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "表格单元格地址，如 'C7'",
+          "title": "Cell"
+        },
+        "char_start": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Char Start"
+        },
+        "char_end": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Char End"
+        },
+        "exact_quote": {
+          "anyOf": [
+            {
+              "maxLength": 1500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exact Quote"
+        }
+      },
+      "title": "Locator",
+      "type": "object"
+    },
+    "Position": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "maxLength": 64,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "statement": {
+          "maxLength": 2000,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "statement"
+      ],
+      "title": "Position",
+      "type": "object"
+    },
+    "ResearchStatus": {
+      "enum": [
+        "complete",
+        "partial",
+        "blocked",
+        "cancelled"
+      ],
+      "title": "ResearchStatus",
+      "type": "string"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "maxLength": 64,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "url": {
+          "description": "原始请求 URL",
+          "maxLength": 2000,
+          "title": "Url",
+          "type": "string"
+        },
+        "final_url": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "重定向后的最终 URL",
+          "title": "Final Url"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "fetched_at": {
+          "description": "ISO 8601 抓取时间",
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "发布日期，未知为 null",
+          "title": "Published At"
+        },
+        "artifact_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Artifact Id"
+        },
+        "content_hash": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content Hash"
+        },
+        "content_type": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content Type"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Locator"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "source_id",
+        "url",
+        "fetched_at"
+      ],
+      "title": "Source",
+      "type": "object"
+    },
+    "Table": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "maxLength": 64,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "headers": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 40,
+          "title": "Headers",
+          "type": "array"
+        },
+        "rows": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Cell"
+            },
+            "type": "array"
+          },
+          "maxItems": 500,
+          "title": "Rows",
+          "type": "array"
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "maxLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Currency"
+        },
+        "magnitude": {
+          "anyOf": [
+            {
+              "maxLength": 32,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "如 'thousands', 'millions'",
+          "title": "Magnitude"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        },
+        "footnotes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Footnotes",
+          "type": "array"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Locator"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "extraction_method": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "text-layer / alignment / table-model / vision",
+          "title": "Extraction Method"
+        },
+        "uncertain": {
+          "default": false,
+          "title": "Uncertain",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_id",
+        "rows"
+      ],
+      "title": "Table",
+      "type": "object"
+    },
+    "TokenUsage": {
+      "additionalProperties": false,
+      "properties": {
+        "prompt": {
+          "default": 0,
+          "title": "Prompt",
+          "type": "integer"
+        },
+        "completion": {
+          "default": 0,
+          "title": "Completion",
+          "type": "integer"
+        },
+        "cached_prompt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "后端不暴露时为 null",
+          "title": "Cached Prompt"
+        }
+      },
+      "title": "TokenUsage",
+      "type": "object"
+    },
+    "ToolErrorInfo": {
+      "additionalProperties": false,
+      "description": "工具返回给研究模型 / 主会话的错误结构。",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "default": false,
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stage"
+        },
+        "source_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Id"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "ToolErrorInfo",
+      "type": "object"
+    },
+    "Usage": {
+      "additionalProperties": false,
+      "properties": {
+        "wall_seconds": {
+          "title": "Wall Seconds",
+          "type": "number"
+        },
+        "stage_seconds": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "container_start / subquery / search / rerank / download / parse / ocr / model 等",
+          "title": "Stage Seconds",
+          "type": "object"
+        },
+        "tokens": {
+          "$ref": "#/$defs/TokenUsage"
+        },
+        "model_calls": {
+          "default": 0,
+          "title": "Model Calls",
+          "type": "integer"
+        },
+        "search_calls": {
+          "default": 0,
+          "title": "Search Calls",
+          "type": "integer"
+        },
+        "pages_fetched": {
+          "default": 0,
+          "title": "Pages Fetched",
+          "type": "integer"
+        },
+        "pages_parsed": {
+          "default": 0,
+          "title": "Pages Parsed",
+          "type": "integer"
+        },
+        "ocr_pages": {
+          "default": 0,
+          "title": "Ocr Pages",
+          "type": "integer"
+        },
+        "cache": {
+          "$ref": "#/$defs/CacheStats"
+        },
+        "budget_exhausted": {
+          "description": "哪些预算项触顶",
+          "items": {
+            "type": "string"
+          },
+          "title": "Budget Exhausted",
+          "type": "array"
+        }
+      },
+      "required": [
+        "wall_seconds"
+      ],
+      "title": "Usage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "$ref": "#/$defs/ResearchStatus"
+    },
+    "summary": {
+      "maxLength": 12000,
+      "title": "Summary",
+      "type": "string"
+    },
+    "claims": {
+      "items": {
+        "$ref": "#/$defs/Claim"
+      },
+      "maxItems": 100,
+      "title": "Claims",
+      "type": "array"
+    },
+    "tables": {
+      "items": {
+        "$ref": "#/$defs/Table"
+      },
+      "maxItems": 50,
+      "title": "Tables",
+      "type": "array"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/Source"
+      },
+      "maxItems": 100,
+      "title": "Sources",
+      "type": "array"
+    },
+    "disagreements": {
+      "items": {
+        "$ref": "#/$defs/Disagreement"
+      },
+      "maxItems": 50,
+      "title": "Disagreements",
+      "type": "array"
+    },
+    "missing_information": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Missing Information",
+      "type": "array"
+    },
+    "access_failures": {
+      "items": {
+        "$ref": "#/$defs/AccessFailure"
+      },
+      "maxItems": 100,
+      "title": "Access Failures",
+      "type": "array"
+    },
+    "answers": {
+      "items": {
+        "$ref": "#/$defs/Answer"
+      },
+      "maxItems": 20,
+      "title": "Answers",
+      "type": "array"
+    },
+    "images": {
+      "items": {
+        "$ref": "#/$defs/ImageResult"
+      },
+      "maxItems": 4,
+      "title": "Images",
+      "type": "array"
+    },
+    "usage": {
+      "$ref": "#/$defs/Usage"
+    }
+  },
+  "required": [
+    "status",
+    "summary",
+    "usage"
+  ],
+  "title": "ResearchResult",
+  "type": "object"
+}

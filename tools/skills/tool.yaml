@@ -1,0 +1,6 @@
+# 工具 skills 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: skills
+# skill 在仓库 skills/（control_center/skills.py）；导入经通用审批卡，Joy 同意后中枢 skill_install 以平台用户安装（手册 §4.10 第 4 步）
+description: "找、加载、导入 skill（别人写好的做法，可带脚本）；导入要 Joy 批准"
+is_editable: false   # 平台核心：中枢按它的审批卡代办安装，builder 的计划不能改它
+network: true        # import_skill 要从网址下载

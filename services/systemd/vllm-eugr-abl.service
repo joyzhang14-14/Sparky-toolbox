@@ -1,0 +1,16 @@
+# vLLM 无审查版（eugr 配方，容器 vllm_node，模型 huginnfork/Qwen3.8-Flash-Next-NVFP4-Abliterated）：stb 档位 flash-next-abliterated 的启动单元。
+# 不开机自启（没有 [Install]），由 stb 运行器按需 restart；和 vllm-eugr 共用容器名，同一时间只跑一个。
+# 安装：cp services/systemd/vllm-eugr-abl.service ~/.config/systemd/user/ && systemctl --user daemon-reload
+# 停止：~/scripts/vllm-eugr-abl.sh stop（docker rm -f vllm_node；单元起的、手动起的都能停；里面跑的是默认版时不删）。
+[Unit]
+Description=vLLM Flash-Next Abliterated (eugr recipe, container vllm_node)
+After=network-online.target
+
+[Service]
+UMask=0022
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/bin/sh -c 'for i in $(seq 1 60); do docker info >/dev/null 2>&1 && exit 0; sleep 2; done; exit 1'
+ExecStart=%h/scripts/vllm-eugr-abl.sh
+ExecStop=%h/scripts/vllm-eugr-abl.sh stop
+TimeoutStartSec=180

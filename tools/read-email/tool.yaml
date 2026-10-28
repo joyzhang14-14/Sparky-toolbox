@@ -1,0 +1,10 @@
+# 工具 read-email 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+# 读外部内容：邮件是别人写的自由文本，只给隔离子代理用（isolated-reader 的 tools），主模型拿不到原文。每个邮箱一个文件 mailboxes/<键>.py（加邮箱就加一个文件）
+name: read-email
+description: "读 Joy 的各个邮箱（只读）：取上次读到之后的新邮件，或按时间窗、发件人、标题词查；返回邮件原文"
+usable_by: subagent
+network: true
+is_editable: false   # 已读位置的正本（data/tool_state/read-email/）由下面以平台身份跑的 run_end hook 写；builder 的计划不能改它
+hooks:            # 运行 complete 才把每个邮箱本次成功交出的邮件写回已读位置（_cursor.py）；有取信失败的调用、这批没全交出去就改判 failed
+  run_end:
+    - command: cursor_hook.py

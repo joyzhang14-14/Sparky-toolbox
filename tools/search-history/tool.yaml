@@ -1,0 +1,5 @@
+# 工具 search-history 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: search-history
+# source=dm 读 data/messages/dm.sqlite3，source=task 读 tasks.sqlite3
+description: "按关键词 + 可选时间段检索以前的消息：Joy 与私信助手的对话，或任务发给 Joy 的成品与问题卡回答"
+network: false

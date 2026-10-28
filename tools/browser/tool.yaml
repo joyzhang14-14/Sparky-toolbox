@@ -1,0 +1,15 @@
+# 工具 browser 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+# 读外部内容：返回网页的正文、元素表和截图，只给子代理用（subagents/isolated-browser/ 的 tools），主模型只拿到隔离核对过引文的答案
+name: browser
+# 登录档案的域名清单在 data/tool_state/browser/domains/<名>.txt；提交、上传、填密码、加域名都发审批卡给 Joy
+description: "操作一次性无头浏览器：打开网页（可带 Joy 的登录档案），点、输入、选、按键、滚动、等、悬停、拖动、后退、跳转，每步返回页面变化、元素表和截图；可分段读全文、在页面里查找、把流程存成脚本草稿；提交、上传、填密码、加域名要 Joy 批准"
+usable_by: subagent
+is_editable: false   # 外部内容隔离（浏览器）与登录档案：builder 的计划不能改
+network: true     # 浏览器容器连 docker 网络（_browser.NETWORK）
+docker:           # 浏览器容器（镜像与网络见同文件夹的 _browser.py）：stbcc-docker 代起，根只读，Chromium 的共享内存与临时目录在 /tmp 内存盘
+  images: [owa-research:latest]
+  memory: 2g
+  cpus: 2
+  pids: 512
+  tmp: 1g
+  timeout: 1h       # 预计时长（同子代理 isolated-browser 的单次上限），只用来显示、判卡住

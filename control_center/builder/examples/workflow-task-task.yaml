@@ -1,0 +1,13 @@
+# workflow 任务的 tasks/<名>/task.yaml：每晚先用老师模型生成答案、再接着训练、最后出报告（不起 agent，按步骤跑任务文件夹里的 py）
+name: nightly-sft
+description: 每晚用老师模型生成答案、接着训练、出报告
+enabled: false
+trigger: schedule
+schedule: "0 2 * * *"
+timeout: 6h               # 各步骤在跑的时间合计
+priority: 2
+network: [8011]           # 第 1 步连本机 vLLM 的端口
+steps:
+  - [1, gen.py, true, {runtime: vllm-qad, model: /models/Qwen3.5-9B-event-orig}]   # 要模型服务：平台先起好，连接信息在 STB_MODEL
+  - [2, train.py, true]     # 要 GPU、不要模型服务：平台停掉所有模型、等内存够了再跑
+  - [3, report.py, false]   # 只读写文件：马上跑；把给 Joy 的结果写进 $STB_REPLY_FILE

@@ -1,0 +1,17 @@
+# 新任务 tasks/<名>/task.yaml：字段要和计划一致
+name: weather-daily
+description: 早上私信天气
+enabled: false            # 一定写 false，试跑后由平台启用
+trigger: schedule
+schedule: "0 7 * * *"     # 5 段 cron，本机时区
+timeout: 10m              # 主模型时间预算
+priority: 3               # 1–9
+runtime: vllm-eugr
+model: <models.yaml 里能当主模型的档位（有 endpoint、context_window）的 model_path>
+tools:
+  - weather
+  - reply
+subagents:                # 主模型能调用的子代理（已有的，或本计划新建的）；不用就不写
+  - <已有子代理名>
+system_prompt: |
+  查今天的天气，用 reply 私信 Joy 一两句话。

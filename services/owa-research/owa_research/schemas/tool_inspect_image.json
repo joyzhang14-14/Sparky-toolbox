@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "调用方给的图（u1、u2…）",
+      "pattern": "^u[1-9]$",
+      "title": "Id",
+      "type": "string"
+    },
+    "question": {
+      "description": "要从图里看出什么（人物是谁、物品、地点、图里的文字…）",
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Question",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "question"
+  ],
+  "title": "InspectImageParams",
+  "type": "object",
+  "description": "看调用方给的图（u1…），回答关于图的问题：画的是谁 / 什么、有什么特征、图里写了什么，用来决定怎么搜"
+}

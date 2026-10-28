@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "调用方给的图（u1、u2…）",
+      "pattern": "^u[1-9]$",
+      "title": "Id",
+      "type": "string"
+    },
+    "engine": {
+      "anyOf": [
+        {
+          "pattern": "^[a-z][a-z0-9_]{0,30}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "服务：saucenao|yandex，不写用第一个可用的；各自擅长什么见工具说明",
+      "title": "Engine"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "ReverseImageSearchParams",
+  "type": "object",
+  "description": "以图搜图：找调用方的图的出处，返回含这张图的网站（sites：链接、标题，有的带相似度、画师）和识别标签（tags）。engine 选服务（engine=saucenao：只擅长插画、动漫、漫画、游戏 CG、同人图（pixiv、Twitter、booru 等图库），给原帖链接、作品名、画师、相似度；照片、实物、截图基本搜不到；裁得太狠、加了大量文字或重绘过的认不出；每 30 秒 4 次、每天 100 次。插画先用它；engine=yandex：什么图都能搜（照片、截图、冷门或新的同人图），给出含这张图的网站（标题、链接，常带角色名、画师、作品 tag）和识别标签；是非官方接口，偶尔会失败，结果里可能有成人网站。照片、截图直接用它；插画在别的服务没结果时再用它；不写 engine 用排在前面、这次可用的那个）。按各服务擅长的图挑，一个没结果再换另一个；都搜不到就用 inspect_image 看图再按内容搜"
+}

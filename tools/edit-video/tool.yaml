@@ -1,0 +1,12 @@
+# 工具 edit-video 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: edit-video
+# 一次性断网容器 stb-video 里跑 ffmpeg，不换模型；成品存工作目录 media/<运行>/，超过 10 MiB 另出 Discord 压缩版
+description: "剪视频：按剪辑单剪切、拼接、变速、缩放、配乐、烧字幕、淡入淡出，或看素材（时长尺寸 + 抽帧拼图）"
+network: false
+docker:
+  images: [stb-video]
+  memory: 4g
+  cpus: 4
+  pids: 512
+  tmp: 1g
+  timeout: 20m      # 预计时长，只用来显示、判卡住

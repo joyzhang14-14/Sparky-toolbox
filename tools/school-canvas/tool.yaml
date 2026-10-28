@@ -1,0 +1,7 @@
+# 工具 school-canvas 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+# 读外部内容：课程名、作业名、模块名是老师写的文字，只给隔离子代理用（isolated-reader 的 tools；2026-10-05 Joy 定）
+name: school-canvas
+# 用 Canvas API token
+description: "只读查 UCI Canvas：课程与总分、近期作业、缺交、单科已出分、模块进度；不返回作业说明、公告等自由文本"
+usable_by: subagent
+network: true

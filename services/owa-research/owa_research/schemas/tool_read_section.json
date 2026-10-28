@@ -1,0 +1,63 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifact_id": {
+      "maxLength": 128,
+      "title": "Artifact Id",
+      "type": "string"
+    },
+    "section_id": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "read_outline 给出的章节 ID",
+      "title": "Section Id"
+    },
+    "char_start": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Char Start"
+    },
+    "char_end": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Char End"
+    },
+    "max_chars": {
+      "default": 16000,
+      "maximum": 100000,
+      "minimum": 500,
+      "title": "Max Chars",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "artifact_id"
+  ],
+  "title": "ReadSectionParams",
+  "type": "object",
+  "description": "按 read_outline 的章节 ID 或字符范围读取内容"
+}

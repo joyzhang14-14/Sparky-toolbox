@@ -1,0 +1,77 @@
+# open-web-access 私有 SearXNG 配置（规格第 8 节）。基于镜像默认 settings.yml 做最小覆盖。
+use_default_settings:
+  engines:
+    # 只保留这些引擎；每个引擎默认各用自己的 network，不共用停用桶
+    keep_only:
+      - brave
+      - duckduckgo
+      - startpage
+      - wikipedia
+      - crossref
+      - openalex
+      - yandex
+      - seznam
+      - arxiv
+      - github
+      # 图片搜索（研究容器的 search_images 用，2026-09-29）
+      - bing images
+      - google images
+      - duckduckgo images
+      - startpage images
+      - wikicommons.images
+
+general:
+  instance_name: "owa-searxng"
+  debug: false
+  enable_metrics: true
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  favicon_resolver: ""
+  default_lang: "auto"
+  # JSON 必须在这里启用，否则 /search?format=json 返回 403
+  formats:
+    - html
+    - json
+
+server:
+  port: 8080
+  bind_address: "0.0.0.0"
+  # 私有实例：关闭限流器（否则非 HTML 请求按 API 调用计，每 IP 每小时只放 4 次）
+  limiter: false
+  public_instance: false
+  image_proxy: false
+  method: "GET"
+
+outgoing:
+  # 默认 3.0 会丢慢引擎；按 0.5 秒逐步上调
+  request_timeout: 4.0
+  max_request_timeout: 10.0
+  pool_connections: 20
+  pool_maxsize: 10
+  enable_http2: true
+
+engines:
+  - name: brave
+    disabled: false
+  - name: duckduckgo
+    disabled: false
+  - name: startpage
+    disabled: false
+  - name: wikipedia
+    disabled: false
+  - name: crossref
+    disabled: false
+  - name: openalex
+    disabled: false
+  - name: yandex
+    disabled: false
+  - name: seznam
+    disabled: false
+  - name: arxiv
+    disabled: false
+  - name: github
+    disabled: false
+  - name: google images
+    disabled: false

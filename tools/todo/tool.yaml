@@ -1,0 +1,5 @@
+# 工具 todo 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: todo
+# 清单在任务工作目录 todo/ 下（control_center/todo.py）；平台在运行开头、结束时按清单提醒（runner）
+description: "待办清单：把要做、答应要做的事记下来，做完打勾写依据，不做了写原因"
+network: false

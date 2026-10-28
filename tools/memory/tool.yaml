@@ -1,0 +1,5 @@
+# 工具 memory 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: memory
+# 文件：~/Obsidian/USER/memory.md（memory_edit 直接写入、不发审批卡）与 USER.md（memory_user_edit 发通用审批卡，Joy 同意后同样参数再调一次才写入）
+description: "Joy 的记忆：读 / 改短期记忆 memory.md（近期在做什么、临时约定）；读 USER.md（Joy 是谁、稳定偏好）并提议修改"
+network: false

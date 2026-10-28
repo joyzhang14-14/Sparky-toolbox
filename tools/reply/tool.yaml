@@ -1,0 +1,6 @@
+# 工具 reply 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: reply
+# 交聊天中枢 stbcc-hub，回到这次运行的入口（Discord 私信回 Discord，网页回网页；定时任务按中枢的规则发）
+description: "私信 Joy 一条消息（可带附件）；只能发给 Joy，不能发频道或别人"
+is_editable: false   # 平台核心：builder 的计划不能改它
+network: false

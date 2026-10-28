@@ -1,0 +1,2 @@
+{"retire_tools": [{"name": "weather", "reason": "Joy 改用 weather2，不再要它", "remove_from": ["dm-assistant"]}],
+ "retire_tasks": [{"name": "weather-daily", "reason": "被 weather2-daily 取代"}]}

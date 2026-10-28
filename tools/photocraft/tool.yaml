@@ -1,0 +1,8 @@
+# 工具 photocraft 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: photocraft
+# photocraft（GitHub storytold/photocraft，纯 Rust 的 Photoshop 重实现）官方 aarch64 包的 headless MCP 引擎（photocraft-cli mcp，stdio）；
+# 引擎子进程第一次调用才起、随本工具进程退（跨运行不保留会话），RLIMIT_AS 8 GB 上限；不联网、不起容器、不要 GPU。
+# 分工（Joy 2026-10-20 定）：photocraft 管调色 / 滤镜 / 裁剪缩放 / 合成 / 图层 / 文字 / 形状 / PSD·PCRAFT；
+# 精细抠图（头发、胡须）仍用 cutout；生成新内容仍用 image 子代理。三者都保留、不替换。
+description: "photocraft 修图：调色 / 滤镜 / 裁剪缩放 / 合成 / 图层 / 文字 / 形状，读写 PSD·PCRAFT（打开→查命令→跑命令→预览→保存，同一次运行里文档保持打开可连续改）。精细抠图用 cutout，生成新内容用 image 子代理"
+network: false

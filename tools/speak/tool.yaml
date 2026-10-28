@@ -1,0 +1,13 @@
+# 工具 speak 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: speak
+# Breeze TTS 2（Sparky 的声音「安静的少女」）生成 + Qwen3-ForcedAligner 停顿检查，在一次性 GPU 容器 stb-docker-base 里接力跑（不换模型，和主模型同时跑），开跑前查可用内存
+description: "用 Sparky 的声音把中文文字念成语音，输出能直接在私信里播的录音"
+network: false
+docker:
+  images: [stb-docker-base]
+  gpu: true
+  memory: 8g        # 2026-10-25 实测：Breeze 生成进程内存峰值约 4.7 GB（显存约 8 GB 走驱动，不算在容器内存里）
+  cpus: 4
+  pids: 512
+  tmp: 1g
+  timeout: 10m      # 预计时长，只用来显示、判卡住

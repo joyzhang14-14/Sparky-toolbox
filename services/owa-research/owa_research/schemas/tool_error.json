@@ -1,0 +1,70 @@
+{
+  "$defs": {
+    "ErrorCode": {
+      "enum": [
+        "TOOL_NOT_ALLOWED",
+        "SSRF_BLOCKED",
+        "MODEL_UNAVAILABLE",
+        "MODEL_CAPABILITY_UNVERIFIED",
+        "SEARCH_UNAVAILABLE",
+        "RATE_LIMITED",
+        "NEEDS_HUMAN_VERIFICATION",
+        "UNSUPPORTED_FORMAT",
+        "EXTRACTION_FAILED",
+        "RESOURCE_PRESSURE",
+        "BUDGET_EXCEEDED",
+        "CANCELLED",
+        "INVALID_ARGUMENT",
+        "FETCH_FAILED"
+      ],
+      "title": "ErrorCode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "工具返回给研究模型 / 主会话的错误结构。",
+  "properties": {
+    "code": {
+      "$ref": "#/$defs/ErrorCode"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "retryable": {
+      "default": false,
+      "title": "Retryable",
+      "type": "boolean"
+    },
+    "stage": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stage"
+    },
+    "source_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Id"
+    }
+  },
+  "required": [
+    "code",
+    "message"
+  ],
+  "title": "ToolErrorInfo",
+  "type": "object"
+}

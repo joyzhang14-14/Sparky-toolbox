@@ -1,0 +1,55 @@
+# 联网研究子代理（engine，isolated）：owa-launcher 起一次性研究容器（自建 SearXNG 搜索 + 读网页 / PDF，owa 研究引擎），按主模型的任务书和问题研究；
+# 交回研究结果（摘要、逐题答案、要点、分歧、来源、缺的信息、抓不到的页面、选中的图、links），主模型看不到网页原文
+name: isolated-web-search
+description: "联网研究：搜索、读网页 / PDF（再长也整页读），按你的问题返回带来源的研究结果；也能按描述找图、拿图搜出处；mode=search 只给搜索结果列表。查公开信息、读公开网页用它。"
+kind: engine
+runtime: inherit            # 研究模型同调用它的任务
+model: inherit
+timeout: 45m                # 整次调用的上限，含排队等研究容器（launcher 同时只跑 max_running 个，daily-news 一次发 5 个）；研究本身 15 分钟（程序的 RESEARCH_S，研究容器从开跑算，到点自己收尾交阶段性结果）
+isolated: true              # 读外部内容；isolated 的 engine 交回自己 harness 校验过的结果：研究模型在沙箱研究容器里读网页，交回的 ResearchResult 在容器里按 schema 校验、
+                            # 引文逐字核对，程序再按 schema 校验一遍；平台不做问答引文核对，结果原样交给主模型
+is_editable: false          # 外部内容隔离（联网研究）：builder 的计划不能改；hooks 以平台身份跑
+hooks:                      # 运行的一段结束（任何结束方式）：取消这次运行交给 owa-launcher、还没结束的研究（研究容器不跟着运行单元退出）
+  run_end:
+    - command: cancel_research.py
+inputs:                     # 同 server.py 的函数参数；prompt 是任务书（要找什么、范围），mode=search 时是搜索词
+  extract:
+    type: array
+    items: {type: string}
+    default: []
+    description: research 必填：要回答的问题，1–20 个（超过 20 个时处理前 20 个）；结果里的 answers 按同样顺序一一对应，没找到答案的那一项 answer 为 null
+  context:
+    type: string
+    default: ""
+    description: 补充背景（可选）
+  seed_urls:
+    type: array
+    items: {type: string}
+    default: []
+    description: Joy 提供的链接，按原样填写；会读取前 10 个
+  seeds_only:
+    type: boolean
+    default: false
+    description: true：只读 seed_urls 及从中点进的页面，不再搜索
+  track_questions:
+    type: boolean
+    default: false
+    description: true：逐题跟踪，卡住的题先放下，查不到的能明确回答「确认不在」
+  images:
+    type: integer
+    minimum: 0
+    maximum: 4
+    default: 0
+    # 子代理搜图、看图打分，筛掉图里有大段文字或可疑文字的
+    description: 需要的图片数量
+  image_refs:
+    type: array
+    items: {type: string}
+    default: []
+    # 子代理先看图（认人物、物品、地点、图里的文字）再按内容搜；以图搜图按各服务擅长的图挑一个（有的只擅长插画 / 动漫），没结果换另一个，都没结果改按内容搜
+    description: 用来搜索的图片（工作目录下的绝对路径，会使用前 3 张）：先识别图片内容再按内容搜索，需要时用以图搜图查找出处（图片会上传到外部的以图搜图服务）
+  mode:
+    type: string
+    enum: [research, search]
+    default: research
+    description: research：研究（搜索、读网页、按 extract 作答）；search：快搜，prompt 写搜索词，只交回搜索结果列表（标题、网址、摘要），几秒出结果，其余参数不用填

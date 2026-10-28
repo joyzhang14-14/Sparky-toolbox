@@ -1,0 +1,5 @@
+# 工具 shell 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: shell
+description: "在 Sparky 上以 sparky 用户执行 bash 命令：只读的直接执行，有副作用的需要 Joy 批准"
+is_editable: false   # 平台核心：builder 的计划不能改它
+network: true       # 以 sparky 跑，联网不限；文件看 sparky 的文件权限

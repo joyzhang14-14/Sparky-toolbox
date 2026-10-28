@@ -1,0 +1,6 @@
+# tools/<名>/tool.yaml：network、docker、usable_by、hooks 要和计划一样
+name: weather
+description: "查天气（Open-Meteo）"
+network: true
+# 有依赖时同文件夹放 requirements.txt，一行一个 包==版本，和计划的 deps 一模一样，如：
+#   httpx==0.28.1

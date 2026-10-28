@@ -1,0 +1,104 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "query": {
+      "maxLength": 400,
+      "minLength": 1,
+      "title": "Query",
+      "type": "string"
+    },
+    "categories": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Categories"
+    },
+    "engines": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Engines"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "maxLength": 16,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language"
+    },
+    "pageno": {
+      "default": 1,
+      "description": "SearXNG 没有 limit，要更多结果用 pageno 翻页",
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Pageno",
+      "type": "integer"
+    },
+    "time_range": {
+      "anyOf": [
+        {
+          "pattern": "^(day|month|year)$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Time Range"
+    },
+    "min_score": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Min Score"
+    },
+    "max_results": {
+      "default": 20,
+      "description": "客户端截断",
+      "maximum": 50,
+      "minimum": 1,
+      "title": "Max Results",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "query"
+  ],
+  "title": "SearchWebParams",
+  "type": "object",
+  "description": "SearXNG 搜索，返回按 score 排序的片段（标题、摘要、URL、引擎、日期、分数）"
+}

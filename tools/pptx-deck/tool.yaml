@@ -1,0 +1,4 @@
+# 工具 pptx-deck 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: pptx-deck
+description: "把 JSON 版面规格生成可编辑的 .pptx 幻灯片"
+network: false     # 不联网（builder 计划 09298a890d 里写的）

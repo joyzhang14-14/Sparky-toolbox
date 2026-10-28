@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "Passage": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 128,
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 4000,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "title": "Passage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "question": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Question",
+      "type": "string"
+    },
+    "passages": {
+      "items": {
+        "$ref": "#/$defs/Passage"
+      },
+      "maxItems": 200,
+      "minItems": 1,
+      "title": "Passages",
+      "type": "array"
+    },
+    "top_k": {
+      "default": 10,
+      "maximum": 200,
+      "minimum": 1,
+      "title": "Top K",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "question",
+    "passages"
+  ],
+  "title": "RankPassagesParams",
+  "type": "object",
+  "description": "按问题相关度给片段排序，返回分数与定位"
+}

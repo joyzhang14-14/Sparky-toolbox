@@ -1,0 +1,15 @@
+# stbcc-web：网页渠道（channels/web/server.py 与 chat.py，页面 channels/web/frontend/；控制台的接口与前端在 control_center/console/，由 server.py 挂上），只在 Tailscale 网卡监听。由 `stb web --install` 填充 {STB}/{REPO} 后装到 ~/.config/systemd/user/
+[Unit]
+Description=sparky-toolbox web ui (tailnet only)
+After=network-online.target tailscaled.service
+
+[Service]
+UMask=0022
+Type=simple
+WorkingDirectory={REPO}
+ExecStart={STB} web
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

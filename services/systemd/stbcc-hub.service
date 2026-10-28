@@ -1,0 +1,15 @@
+# stbcc-hub：聊天中枢（卡片、系统通知、私信与命令、定时触发与任务监听、状态与进度；control_center/hub.py）。由 `stb hub --install` 填充 {STB}/{REPO} 后装到 ~/.config/systemd/user/
+[Unit]
+Description=sparky-toolbox hub (cards, notices, events, listeners, progress fan-out)
+After=network-online.target
+
+[Service]
+UMask=0022
+Type=simple
+WorkingDirectory={REPO}
+ExecStart={STB} hub
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

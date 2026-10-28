@@ -1,0 +1,47 @@
+# 生图子代理（generator）：本地 ComfyUI 跑 Qwen-Image 2.1 无审查版，文生图 / 改图；主模型传 prompt + 下面的 inputs，交回成品路径和一张预览图
+name: image
+# 调用前网关卸下主模型、加载图像模型，调用后换回（切换来回约 5 分钟，不算进 timeout）；加载期间 Joy 那边显示 ⏳
+description: "用本地模型生成图片：文生图，或给图改图。"
+kind: generator
+runtime: comfyui            # 和任务不同：调用前网关卸主模型、起 ComfyUI，调用后换回（切换时间不算进单次上限）
+model: qwen-image-2.1-uncensored
+timeout: 15m                # 单次调用：生成 + 取成品（不含切换模型）
+is_editable: false          # 带以平台身份跑的 hooks（查输入图、删 ComfyUI 里的副本）：builder 的计划不能改它
+inputs:                     # 同 server.py 的函数参数（默认值、上下限一致）
+  images:
+    type: array
+    items: {type: string}
+    maxItems: 10
+    default: []
+    description: 改图的输入图（工作目录下的绝对路径，1–10 张）：第 1 张是要改的图，其余是参考图，prompt 里用 <image1>、<image2>… 指第几张；输出尺寸跟随第 1 张，约 1 MP；不给就是文生图
+  negative_prompt:
+    type: string
+    default: ""
+    description: 不想要的内容（基本不起作用，可不填）
+  aspect_ratio:
+    type: string
+    enum: ["1:1 (Square)", "2:3 (Portrait Photo)", "3:2 (Photo)", "3:4 (Portrait Standard)", "4:3 (Standard)", "9:16 (Portrait Widescreen)", "16:9 (Widescreen)", "21:9 (Ultrawide)"]
+    default: "1:1 (Square)"
+    description: 文生图的宽高比（改图时跟随第 1 张）
+  megapixels:
+    type: number
+    minimum: 0.25
+    maximum: 4.0
+    default: 1.0
+    description: 文生图的像素预算（百万像素；改图时不起作用）
+  steps:
+    type: integer
+    minimum: 1
+    maximum: 50
+    default: 25
+    description: 采样步数
+  seed:
+    type: integer
+    minimum: -1
+    default: -1
+    description: 随机种子，-1 = 随机
+hooks:
+  pre_call:                 # 换模型之前先查输入图（在不在、是不是图片），不过就拦下，不白卸主模型
+    - command: check_inputs.py
+  post_call:                # ComfyUI 里的输入图与成品副本（~/apps/ComfyUI/input|output/stb/<运行 id>/）sparky 删不了：每次调用结束后以平台身份删（同一运行还有调用在途就等最后一个）
+    - command: comfy_cleanup.py

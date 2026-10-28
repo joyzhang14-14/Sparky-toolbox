@@ -1,0 +1,2 @@
+{"name": "qq-mail", "functions": "qq-mail_recent(hours)：读 QQ 邮箱最近几小时的邮件（发件人、标题、时间、正文）",
+ "network": true, "deps": [], "untrusted": true}

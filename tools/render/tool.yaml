@@ -1,0 +1,13 @@
+# 工具 render 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: render
+# 一次性断网容器 stb-render 里跑无头 Chromium / LibreOffice，字体烧在镜像里（Google Fonts 全库 + 思源黑宋 + 霞鹜文楷 + 得意黑）；
+# 不换模型；成品存工作目录 media/<运行>/。
+description: "把工作目录里的 HTML 截成 PNG 或导出 PDF（海报、卡片、幻灯片、裁剪 / 拼图 / 加字），或把 Office 文件转成 PDF 看排版"
+network: false
+docker:
+  images: [stb-render]
+  memory: 2g
+  cpus: 2
+  pids: 512
+  tmp: 512m
+  timeout: 5m       # 预计时长（LibreOffice 冷启动 + 转换约 3 分钟），只用来显示、判卡住

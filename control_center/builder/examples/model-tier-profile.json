@@ -1,0 +1,3 @@
+{"name": "qwen-small", "profile": {"runtime": "vllm-eugr", "model_path": "Qwen/Qwen3-8B", "endpoint": "http://127.0.0.1:8002/v1",
+ "context_window": 32768,
+ "start": "~/scripts/qwen-small.sh start", "stop": "~/scripts/qwen-small.sh stop", "min_avail_gb": 30}}

@@ -1,0 +1,30 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "url": {
+      "maxLength": 2000,
+      "title": "Url",
+      "type": "string"
+    },
+    "start_index": {
+      "default": 0,
+      "description": "分段读取起点；截断处附'从第 N 字符继续'提示",
+      "minimum": 0,
+      "title": "Start Index",
+      "type": "integer"
+    },
+    "max_chars": {
+      "default": 16000,
+      "maximum": 100000,
+      "minimum": 500,
+      "title": "Max Chars",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "url"
+  ],
+  "title": "FetchPageParams",
+  "type": "object",
+  "description": "普通 HTTP 读取 HTML/JSON/XML/text，支持 start_index 分段"
+}

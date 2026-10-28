@@ -1,0 +1,7 @@
+# 模板：复制成同文件夹的 recipients.txt 再填。
+# send-email 的收件人（tools/send-email/recipients_hook.py 在每次调用前把 to / cc 改写成这里的地址；模型不用填也改不了）。
+# 一行一个地址：「to: 地址」是收件人，「cc: 地址」是抄送；# 开头是注释，空行忽略。
+# 地址可以写「名字 <邮箱>」或只写邮箱。换人直接改这个文件（下次调用就生效，不用重启）。
+# 例：
+# to: someone@example.com
+# cc: Someone Else <other@example.com>

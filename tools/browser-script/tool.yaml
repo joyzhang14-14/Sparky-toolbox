@@ -1,0 +1,14 @@
+# 工具 browser-script 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: browser-script
+# 登记 = 平台的一次性监听（定时：到点前 10 分钟触发；条件：按间隔跑 check()，默认 30 秒、最短 5 秒），Joy 在审批卡上同意才生效；
+# 触发时平台直接实跑脚本（final() 最多试 40 次 / 30 秒、成功一次就停）并入队一次 priority 10 的私信运行。
+# 登录档案和域名同 browser 工具；输出只有执行器记录，不含页面正文。
+description: "抢课、抢名额这类要掐时间的事：写成脚本演练，登记后到点或条件满足时自动实跑"
+network: true     # 浏览器容器连 docker 网络（同 browser 工具）
+docker:           # 浏览器容器（同 browser 工具）
+  images: [owa-research:latest]
+  memory: 2g
+  cpus: 2
+  pids: 512
+  tmp: 1g
+  timeout: 15m      # 预计时长（演练 / 实跑一次），只用来显示、判卡住

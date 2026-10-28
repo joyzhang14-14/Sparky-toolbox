@@ -1,0 +1,9 @@
+# 工具 send-email 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: send-email
+# 用宿主上的 himalaya 发：发件人取 himalaya 的配置，收件人、抄送由 pre_call hook 按同文件夹的 recipients.txt 改写（模型改不了）
+description: "发一封 HTML 邮件给固定收件人"
+network: true
+is_editable: false   # 唯一能往第三方发数据的工具：收件人与链接核对在以平台身份跑的 hook 里，builder 的计划不能改它
+hooks:            # 调用前（平台身份）：to / cc 改写成 recipients.txt 里的地址；正文里有不在本次研究来源（运行目录里记的隔离子代理结果的 links）里的链接就拦下
+  pre_call:
+    - command: recipients_hook.py

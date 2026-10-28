@@ -1,0 +1,9 @@
+# 新子代理 subagents/<名>/subagent.yaml（generator 示例）
+name: flux-art
+description: 画插画（Flux，本地 ComfyUI）：每次调用要卸下主模型、加载 Flux，几分钟起步；成品存到工作目录 media/<运行>/   # 主模型看到的说明只来自这里
+kind: generator
+runtime: comfyui            # 和 model 一起对上 models.yaml 的一个档位（没有就在计划 models 里加，见 model-tier）
+model: flux-dev             # 档位的 model_path；agent / engine 可以都写 inherit（同调用它的任务，不换模型）。程序是本文件夹的 server.py，注册一个和子代理同名的函数 flux-art（参数 prompt + inputs）
+timeout: 20m                # 单次调用上限（从换好模型算起，等 Joy 处理审批卡的时间顺延；none = 不限）
+inputs:                     # 除 prompt 外主模型能传的参数，写法同 JSON schema：写了 default 的可不传
+  aspect_ratio: {type: string, enum: ["1:1", "16:9"], default: "1:1", description: 宽高比}

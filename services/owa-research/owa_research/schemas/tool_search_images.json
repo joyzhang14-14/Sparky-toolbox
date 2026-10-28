@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "query": {
+      "maxLength": 400,
+      "minLength": 1,
+      "title": "Query",
+      "type": "string"
+    },
+    "pageno": {
+      "default": 1,
+      "maximum": 5,
+      "minimum": 1,
+      "title": "Pageno",
+      "type": "integer"
+    },
+    "max_results": {
+      "default": 20,
+      "maximum": 40,
+      "minimum": 1,
+      "title": "Max Results",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "query"
+  ],
+  "title": "SearchImagesParams",
+  "type": "object",
+  "description": "图片搜索：返回候选图（id、图片地址、所在网页、标题、分辨率），用 view_images 看"
+}

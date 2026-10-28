@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "description": "列出已读网页上的大图（og:image、正文图片）作为候选，用 view_images 看",
+  "properties": {
+    "artifact_id": {
+      "maxLength": 128,
+      "title": "Artifact Id",
+      "type": "string"
+    },
+    "max_results": {
+      "default": 20,
+      "maximum": 40,
+      "minimum": 1,
+      "title": "Max Results",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "artifact_id"
+  ],
+  "title": "PageImagesParams",
+  "type": "object"
+}

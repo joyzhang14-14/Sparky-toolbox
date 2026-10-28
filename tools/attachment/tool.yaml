@@ -1,0 +1,14 @@
+# 工具 attachment 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+# 读外部内容：私信附件是别人写的文件，只给隔离子代理用（isolated-reader 的 tools），主模型拿不到原文
+name: attachment
+# 私信附件在本次运行的 in/ 目录；文档在断网的一次性容器里解析
+description: "读 Joy 私信发来的附件或工作目录里的文件：文档、邮件、网页、纯文本解析成文字，图片原样返回"
+usable_by: subagent
+network: false
+docker:           # 解析容器：断网、只读根，资源同 server.py 的 PARSE_SANDBOX
+  images: ["owa-research:latest"]
+  memory: 2g
+  cpus: 2
+  pids: 256
+  tmp: 512m
+  timeout: 3m

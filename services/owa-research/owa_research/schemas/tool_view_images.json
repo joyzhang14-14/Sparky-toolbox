@@ -1,0 +1,29 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "ids": {
+      "description": "search_images / page_images / reverse_image_search 给的候选 id",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Ids",
+      "type": "array"
+    },
+    "need": {
+      "description": "要什么样的图（内容、构图、风格、清晰度）",
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Need",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ids",
+    "need"
+  ],
+  "title": "ViewImagesParams",
+  "type": "object",
+  "description": "下载并查看候选图（一次最多 8 张），按 need 给每张打分描述；过了规则的图（相关、图里没有大段或可疑文字）自动进结果的 images"
+}

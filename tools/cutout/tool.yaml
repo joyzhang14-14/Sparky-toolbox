@@ -1,0 +1,14 @@
+# 工具 cutout 的登记（字段说明见 control_center/schema/fields.yaml 与手册 §4.1）
+name: cutout
+# ComfyUI 自带的 BiRefNet 在一次性 GPU 容器 stb-docker-base 里跑（不起 ComfyUI 服务、不换模型，和主模型同时跑），开跑前查可用内存；
+# 成品存工作目录 media/<运行>/。
+description: "抠图：把图片里的主体从背景里分出来，输出透明底 PNG 和蒙版"
+network: false
+docker:
+  images: [stb-docker-base]
+  gpu: true
+  memory: 4g        # 2026-10-03 实测容器内存峰值 1.6 GiB（显存约 4.5 GB 走驱动，不算在容器内存里）
+  cpus: 4
+  pids: 512
+  tmp: 1g
+  timeout: 3m       # 预计时长，只用来显示、判卡住
